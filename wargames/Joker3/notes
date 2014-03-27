@@ -1,1 +1,10 @@
 Send email with exe attach
+
+The file, if opened will email:
+Username:stephen
+Machine Name:STEPHEN-LAPTOP
+Local Machine Name:stephen-Laptop
+Ip Addr:fe80::852e:8c28:6abb:1a34%13
+Ip Addr:fe80::186e:f51:f5ef:9462%14
+Ip Addr:10.16.107.157
+Ip Addr:2001:0:9d38:6ab8:186e:f51:f5ef:9462
