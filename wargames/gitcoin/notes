@@ -1,0 +1,5 @@
+Setup:
+Save private key gitcoin.key in ~/.ssh/
+Either rename it id_rsa or do the command ssh-add ~/.ssh/gitcoin.key
+git clone git@cryptologic.org:gitcoin.git drop_table_students
+Copy miner script and run
