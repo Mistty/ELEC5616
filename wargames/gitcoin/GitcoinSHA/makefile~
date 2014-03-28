@@ -1,0 +1,14 @@
+CC=g++
+CFLAGS=-c -Wall
+LDFLAGS=-lOpenCL
+SOURCES=main.cpp sha1.cpp cldispatch.cpp
+OBJECTS=$(SOURCES:.cpp=.o)
+EXECUTABLE=gitcoinSHA
+
+all: $(SOURCES) $(EXECUTABLE)
+	
+$(EXECUTABLE): $(OBJECTS) 
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+
+.cpp.o:
+	$(CC) $(CFLAGS) $< -o $@

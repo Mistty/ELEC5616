@@ -1,0 +1,22 @@
+#include <iostream>
+#include <iomanip>
+#include <CL/opencl.h>
+#include "sha1.h"
+
+using namespace std;
+int main(int argc, char** argv)
+{
+    char* message = "Hello, world";
+
+    SHA1Context sha;
+    SHA1Reset(&sha);
+    SHA1Input(&sha, (const uint8_t*)"hello", 5);
+	unsigned char result[SHA1HashSize];
+	SHA1Result(&sha, result);
+    for (int i = 0; i < SHA1HashSize; i++)
+	{
+		unsigned int v = result[i];
+		cout << setw(2) << setfill('0') << hex << v;
+	}
+	cout << endl;
+}
