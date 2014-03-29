@@ -9,10 +9,10 @@ namespace sha1
     /* Full message hasher */
 	Hasher::Hasher(string prefix)
 	{
-		messageLen = prefix.size() + 16;
+		messageLen = prefix.size() + 16 + 11;
 		message = new char[messageLen];
-		prefix.copy(message, prefix.size(), 0);
-		message[10] = 0;
+		prefix.copy(message + 11, prefix.size(), 0);
+		sprintf(message, "commit 233");
 		sha1_hashPrefix((uint8_t*)message, messageLen - 16);
 	}
 	

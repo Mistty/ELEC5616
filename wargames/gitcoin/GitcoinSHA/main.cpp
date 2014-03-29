@@ -7,6 +7,7 @@
 #include <atomic>
 #include <sys/time.h>
 #include <cstring>
+#include <fstream>
 
 #include "sha1.h"
 
@@ -61,6 +62,7 @@ void findNonce(unsigned int threadId)
 		{
 			resultFound = true;
 			result = nonce;
+			cout << "Hash: " << resultstr.str() << endl;
 		}
 	}
 }
@@ -68,13 +70,22 @@ void findNonce(unsigned int threadId)
 int main(int argc, char** argv)
 {
 	if (argc < 5)
-		cout << "Invalid args" << endl << "Usage is <message> <target> <#threads> <salt>" << endl;
+		cout << "Invalid args" << endl << "Usage is <filepath> <target> <#threads> <salt>" << endl;
 	else
 	{
-		baseMessage = argv[1];
+		string path = argv[1];
 		goal = argv[2];
 		numthreads = atoi(argv[3]);
 		salt = argv[4];
+		std::ifstream in(path, std::ios::in | std::ios::binary);
+		if (in)
+		{
+			in.seekg(0, std::ios::end);
+			baseMessage.resize(in.tellg());
+			in.seekg(0, std::ios::beg);
+			in.read(&baseMessage[0], baseMessage.size());
+			in.close();
+		}
 
 		//spawn threads
 		thread* threads = new thread[numthreads];
@@ -91,7 +102,13 @@ int main(int argc, char** argv)
 		char nonstr[17];
 		printNonce(result.load(), nonstr);
 			
-		cout << nonstr << endl;
+		cout << "Nonce: " << nonstr << endl;
+		
+		
+		ofstream output("minedcommit.txt");
+		output << baseMessage << nonstr;
+		
+		cout << "Updated commit message written to minedcommit.txt" << endl;
 		
 		delete[] threads;
 	}
