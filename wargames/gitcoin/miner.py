@@ -76,7 +76,7 @@ def reset():
 	os.system('git reset --hard origin/master')
 
 
-while true:
+while True:
 	prepare_index()
 	solve()
 	if os.system('git push origin master') == 0:
