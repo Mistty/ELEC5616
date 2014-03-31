@@ -52,7 +52,7 @@ Go Bobby Tables!!
 
 	with open('commit.txt', 'w') as f:
 		f.write(base_content)
-	command = '../sha1 commit.txt %s %i %s' % (difficulty, NUMTHREADS, SALT)
+	command = './sha1 commit.txt %s %i %s' % (difficulty, NUMTHREADS, SALT)
 	os.system(command)
 	
 	
@@ -76,7 +76,7 @@ def reset():
 	os.system('git reset --hard origin/master')
 
 
-while true:
+while True:
 	prepare_index()
 	solve()
 	if os.system('git push origin master') == 0:
