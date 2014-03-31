@@ -22,11 +22,11 @@ Arguments:
 """
 
 def solve(NUMTHREADS, SALT):
-	with open('difficulty.txt', 'r') as f:
+	with open('gitcoin/difficulty.txt', 'r') as f:
 		difficulty = f.read().strip()
 
 	tree = subprocess.check_output(['git', 'write-tree']).strip()
-	with open('.git/refs/heads/master', 'r') as f:
+	with open('gitcoin/.git/refs/heads/master', 'r') as f:
 		parent = f.read().strip()
 	timestamp = int(time.time())
 	print 'Mining…'
@@ -55,19 +55,18 @@ Go Bobby Tables!!
 
 	sha1 = hasher.hexdigest()
 	print 'Mined a Gitcoin! The SHA-1 is:'
-	os.system('git hash-object -t commit minedcommit.txt -w')
-	os.system('git reset --hard %s' % sha1)
+	os.system('cd gitcoin; git hash-object -t commit minedcommit.txt -w')
+	os.system('cd gitcoin; git reset --hard %s' % sha1)
 
 def prepare_index():
-	os.system('perl -i -pe \'s/(%s: )(\d+)/$1 . ($2+1)/e\' LEDGER.txt' % public_username)
-	os.system('grep -q "%s" LEDGER.txt || echo "%s: 1" >> LEDGER.txt' % (public_username, public_username))
-	os.system('git add LEDGER.txt')
+	os.system('perl -i -pe \'s/(%s: )(\d+)/$1 . ($2+1)/e\' gitcoin/LEDGER.txt' % public_username)
+	os.system('grep -q "%s" gitcoin/LEDGER.txt || echo "%s: 1" >> gitcoin/LEDGER.txt' % (public_username, public_username))
+	os.system('cd gitcoin; git add LEDGER.txt')
 
 def reset():
-	os.system('git reset --hard HEAD')
-	os.system('git fetch')
-	os.system('git reset --hard origin/master')
-
+	os.system('cd gitcoin; git reset --hard HEAD')
+	os.system('cd gitcoin; git fetch')
+	os.system('cd gitcoin; git reset --hard origin/master')
 
 if __name__=="__main__":
 	if len(sys.argv) < 3:
