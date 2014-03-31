@@ -7,7 +7,7 @@ import subprocess
 import sys
 import time
 
-usage = """Usage: ./miner.py <clone_url> <public_username>
+usage = """Usage: ./miner.py <clone_url> <public_username> [NUMTHREADS] [SALT]
 Arguments:
 
 <clone_url> is the string you’d pass to `git clone` (i.e.
@@ -44,11 +44,10 @@ Go Bobby Tables!!
 """ % (tree, parent)
 	base_hasher.update(header + base_content)
 
-	with open('commit.txt', 'w') as f:
+	with open('GitcoinSHA/commit.txt', 'w') as f:
 		f.write(base_content)
-	command = './sha1 commit.txt %s %i %s' % (difficulty, NUMTHREADS, SALT)
+	command = 'GitcoinSHA/sha1 commit.txt %s %i %s' % (difficulty, NUMTHREADS, SALT)
 	os.system(command)
-	
 	
 	hasher = hashlib.sha1();
 	with open('minedcommit.txt') as f:
