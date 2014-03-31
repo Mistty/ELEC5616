@@ -14,9 +14,14 @@ Arguments:
   something of the form `username@hostname:path`)
 
 <public_username> is the public username provided to you in
-  the CTF web interface."""
+  the CTF web interface.
 
-def solve():
+[NUMTHREADS]
+
+[SALT]
+"""
+
+def solve(NUMTHREADS, SALT):
 	with open('difficulty.txt', 'r') as f:
 		difficulty = f.read().strip()
 
@@ -78,12 +83,14 @@ if __name__=="__main__":
 		NUMTHREADS = 4
 	try:
 		SALT = sys.argv[4]
+		if len(SALT) > 1:
+			SALT = SALT[1]
 	except:
 		SALT = 'a'
 
 	while True:
 		prepare_index()
-		solve()
+		solve(NUMTHREADS, SALT)
 		if os.system('git push origin master') == 0:
 			print 'Success :)'
 			reset()
