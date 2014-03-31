@@ -36,13 +36,13 @@
 	ROUNDTAIL(a, b, e, i, 0x5A827999)
 
 #define SCHEDULE(i, e)  \
-	movl  (((i- 3)&amp;0xF)*4)(%esp), %esi;  \
-	xorl  (((i- 8)&amp;0xF)*4)(%esp), %esi;  \
-	xorl  (((i-14)&amp;0xF)*4)(%esp), %esi;  \
-	xorl  (((i-16)&amp;0xF)*4)(%esp), %esi;  \
+	movl  (((i- 3)&0xF)*4)(%esp), %esi;  \
+	xorl  (((i- 8)&0xF)*4)(%esp), %esi;  \
+	xorl  (((i-14)&0xF)*4)(%esp), %esi;  \
+	xorl  (((i-16)&0xF)*4)(%esp), %esi;  \
 	roll  $1, %esi;                      \
 	addl  %esi, %e;                      \
-	movl  %esi, ((i&amp;0xF)*4)(%esp);
+	movl  %esi, ((i&0xF)*4)(%esp);
 
 #define ROUND0b(a, b, c, d, e, i)  \
 	SCHEDULE(i, e)   \
