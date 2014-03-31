@@ -81,10 +81,13 @@ if __name__=="__main__":
 		NUMTHREADS = 4
 	try:
 		SALT = sys.argv[4]
-		if len(SALT) > 1:
-			SALT = SALT[1]
 	except:
 		SALT = 'a'
+
+	if os.path.exists('gitcoin'):
+		reset()
+	else:
+		os.system('git clone git@cryptologic.org:gitcoin.git')
 
 	while True:
 		prepare_index()
