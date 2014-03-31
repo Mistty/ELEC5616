@@ -45,7 +45,7 @@ parent %s
 author CTF user <me@example.com> 1333333337 +0000
 committer CTF user <me@example.com> 1333333337 +0000
 
-Give me a Gitcoin
+Go Bobby Tables!!
 
 """ % (tree, parent)
 	base_hasher.update(header + base_content)
@@ -58,10 +58,9 @@ Give me a Gitcoin
 	
 	hasher = hashlib.sha1();
 	with open('minedcommit.txt') as f:
-		hasher.update(f.read())
+		hasher.update(header + f.read())
 
 	sha1 = hasher.hexdigest()
-
 	print 'Mined a Gitcoin! The SHA-1 is:'
 	os.system('git hash-object -t commit minedcommit.txt -w')
 	os.system('git reset --hard %s' % sha1)
@@ -76,12 +75,13 @@ def reset():
 	os.system('git fetch')
 	os.system('git reset --hard origin/master')
 
-while True:
+
+while true:
 	prepare_index()
 	solve()
 	if os.system('git push origin master') == 0:
 		print 'Success :)'
+		reset()
 	else:
 		print 'Starting over :('
 		reset()
-
