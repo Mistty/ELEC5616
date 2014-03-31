@@ -7,9 +7,7 @@ import subprocess
 import sys
 import time
 
-if len(sys.argv) < 3:
-	print """Usage: ./miner.py <clone_url> <public_username>
-
+usage = """Usage: ./miner.py <clone_url> <public_username>
 Arguments:
 
 <clone_url> is the string you’d pass to `git clone` (i.e.
@@ -17,17 +15,8 @@ Arguments:
 
 <public_username> is the public username provided to you in
   the CTF web interface."""
-	sys.exit(1)
-
-clone_spec = sys.argv[1]
-public_username = sys.argv[2]
-
-#USER SETTINGS
-NUMTHREADS = 4
-SALT = 'a'
 
 def solve():
-
 	with open('difficulty.txt', 'r') as f:
 		difficulty = f.read().strip()
 
@@ -76,12 +65,28 @@ def reset():
 	os.system('git reset --hard origin/master')
 
 
-while True:
-	prepare_index()
-	solve()
-	if os.system('git push origin master') == 0:
-		print 'Success :)'
-		reset()
-	else:
-		print 'Starting over :('
-		reset()
+if __name__=="__main__":
+	if len(sys.argv) < 3:
+		print usage
+		sys.exit(1)
+
+	clone_spec = sys.argv[1]
+	public_username = sys.argv[2]
+	try:
+		NUMTHREADS = int(sys.argv[3])
+	except:
+		NUMTHREADS = 4
+	try:
+		SALT = sys.argv[4]
+	except:
+		SALT = 'a'
+
+	while True:
+		prepare_index()
+		solve()
+		if os.system('git push origin master') == 0:
+			print 'Success :)'
+			reset()
+		else:
+			print 'Starting over :('
+			reset()
