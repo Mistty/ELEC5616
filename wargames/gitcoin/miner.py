@@ -49,7 +49,7 @@ Go Bobby Tables!!
 
 	with open('GitcoinSHA/commit.txt', 'w') as f:
 		f.write(base_content)
-	command = 'GitcoinSHA/sha1 commit.txt %s %i %s' % (difficulty, NUMTHREADS, SALT)
+	command = 'GitcoinSHA/sha1 GitcoinSHA/commit.txt %s %i %s' % (difficulty, NUMTHREADS, SALT)
 	print 'Starting Command:' + command
 	os.system(command)
 	
@@ -93,7 +93,7 @@ if __name__=="__main__":
 	if os.path.exists('gitcoin'):
 		os.system('rm -rf gitcoin')
 	os.system('git clone ' + clone_spec + ' gitcoin')
-
+	
 	while True:
 		prepare_index()
 		solve(NUMTHREADS, SALT)
