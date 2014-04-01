@@ -25,7 +25,10 @@ def solve(NUMTHREADS, SALT):
 	with open('gitcoin/difficulty.txt', 'r') as f:
 		difficulty = f.read().strip()
 
-	tree = subprocess.check_output(['git', 'write-tree']).strip()
+	print 'Difficulty is:' + difficulty 
+
+	tree = subprocess.check_output('cd gitcoin; git write-tree', shell=True).strip()
+	print 'Tree is:' + tree
 	with open('gitcoin/.git/refs/heads/master', 'r') as f:
 		parent = f.read().strip()
 	timestamp = int(time.time())
@@ -47,15 +50,18 @@ Go Bobby Tables!!
 	with open('GitcoinSHA/commit.txt', 'w') as f:
 		f.write(base_content)
 	command = 'GitcoinSHA/sha1 commit.txt %s %i %s' % (difficulty, NUMTHREADS, SALT)
+	print 'Starting Command:' + command
 	os.system(command)
 	
 	hasher = hashlib.sha1();
 	with open('minedcommit.txt') as f:
-		hasher.update(header + f.read())
+		nonce = f.read()
+		hasher.update(header + nonce)
+		print 'Nonce is:' + nonce
 
 	sha1 = hasher.hexdigest()
 	print 'Mined a Gitcoin! The SHA-1 is:'
-	os.system('cd gitcoin; git hash-object -t commit minedcommit.txt -w')
+	os.system('cd gitcoin; git hash-object -t commit ../minedcommit.txt -w')
 	os.system('cd gitcoin; git reset --hard %s' % sha1)
 
 def prepare_index():
@@ -83,16 +89,15 @@ if __name__=="__main__":
 		SALT = sys.argv[4]
 	except:
 		SALT = 'a'
-
+	
 	if os.path.exists('gitcoin'):
-		reset()
-	else:
-		os.system('git clone git@cryptologic.org:gitcoin.git')
+		os.system('rm -rf gitcoin')
+	os.system('git clone ' + clone_spec + ' gitcoin')
 
 	while True:
 		prepare_index()
 		solve(NUMTHREADS, SALT)
-		if os.system('git push origin master') == 0:
+		if os.system('cd gitcoin; git push origin master') == 0:
 			print 'Success :)'
 			reset()
 		else:
