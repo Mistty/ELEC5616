@@ -47,7 +47,10 @@ Go Bobby Tables!!
 	with open('GitcoinSHA/commit.txt', 'w') as f:
 		f.write(base_content)
 	command = 'GitcoinSHA/sha1 commit.txt %s %i %s' % (difficulty, NUMTHREADS, SALT)
-	os.system(command)
+	
+	if os.system(command) != 0:
+		print "Hash invalidated. Restarting"
+		return False
 	
 	hasher = hashlib.sha1();
 	with open('minedcommit.txt') as f:
@@ -57,6 +60,8 @@ Go Bobby Tables!!
 	print 'Mined a Gitcoin! The SHA-1 is:'
 	os.system('cd gitcoin; git hash-object -t commit minedcommit.txt -w')
 	os.system('cd gitcoin; git reset --hard %s' % sha1)
+	
+	return True
 
 def prepare_index():
 	os.system('perl -i -pe \'s/(%s: )(\d+)/$1 . ($2+1)/e\' gitcoin/LEDGER.txt' % public_username)
@@ -91,10 +96,9 @@ if __name__=="__main__":
 
 	while True:
 		prepare_index()
-		solve(NUMTHREADS, SALT)
-		if os.system('git push origin master') == 0:
-			print 'Success :)'
-			reset()
-		else:
-			print 'Starting over :('
-			reset()
+		if solve(NUMTHREADS, SALT):
+			if os.system('git push origin master') == 0:
+				print 'Success :)'
+			else:
+				print 'Starting over :('
+		reset()
