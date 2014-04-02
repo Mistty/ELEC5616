@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall -std=c++0x -O3
+CFLAGS=-Wall -std=c++0x -static-libstdc++ -O3
 LDFLAGS=-pthread 
 REDISLIB=libhiredis.a
 SOURCES=main.cpp sha1.cpp 
