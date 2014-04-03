@@ -49,16 +49,12 @@ Go Bobby Tables!!
 
 	with open('GitcoinSHA/commit.txt', 'w') as f:
 		f.write(base_content)
-	command = 'GitcoinSHA/sha1 commit.txt %s %i %s' % (difficulty, NUMTHREADS, SALT)
-<<<<<<< HEAD
-	
+	command = 'GitcoinSHA/sha1 GitcoinSHA/commit.txt %s %i %s' % (difficulty, NUMTHREADS, SALT)
+	print 'Starting Command:' + command
 	if os.system(command) != 0:
 		print "Hash invalidated. Restarting"
 		return False
-=======
-	print 'Starting Command:' + command
-	os.system(command)
->>>>>>> de63ec8d9569908e7ca41b3e0dc1b2d4a58da934
+
 	
 	hasher = hashlib.sha1();
 	with open('minedcommit.txt') as f:
@@ -98,26 +94,17 @@ if __name__=="__main__":
 		SALT = sys.argv[4]
 	except:
 		SALT = 'a'
-	
+
 	if os.path.exists('gitcoin'):
-		os.system('rm -rf gitcoin')
-	os.system('git clone ' + clone_spec + ' gitcoin')
+		reset()
+	else:
+		os.system('git clone git@cryptologic.org:gitcoin.git')
 
 	while True:
 		prepare_index()
-<<<<<<< HEAD
 		if solve(NUMTHREADS, SALT):
-			if os.system('git push origin master') == 0:
+			if os.system('cd gitcoin; git push origin master') == 0:
 				print 'Success :)'
 			else:
 				print 'Starting over :('
 		reset()
-=======
-		solve(NUMTHREADS, SALT)
-		if os.system('cd gitcoin; git push origin master') == 0:
-			print 'Success :)'
-			reset()
-		else:
-			print 'Starting over :('
-			reset()
->>>>>>> de63ec8d9569908e7ca41b3e0dc1b2d4a58da934
