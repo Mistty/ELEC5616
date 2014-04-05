@@ -10,14 +10,13 @@
 #include <fstream>
 
 #include "sha1.h"
+#include "hiredis.h"
 
 using namespace std;
 using namespace chrono;
 
 namespace
 {
-	atomic<unsigned long int> result;
-	bool resultFound(false);
 	string baseMessage;
 	string goal;
 	int numthreads;
@@ -38,41 +37,62 @@ namespace
 		
 		salt.copy(nonstr + 16 - salt.size(), salt.size(), 0);
 	}
-};
-
-void findNonce(unsigned int threadId)
-{
-	sha1::Hasher hasher(baseMessage);
-
-	for (unsigned long int nonce = threadId; !resultFound; nonce+=numthreads)
+	
+	void outputAnswer(long int result)
 	{
 		char nonstr[17];
-		printNonce(nonce, nonstr);
+		printNonce(result, nonstr);
+			
+		cout << "Nonce: " << nonstr << endl;
+			
+		ofstream output("minedcommit.txt");
+		output << baseMessage << nonstr;
 		
-		hasher.hashNonce(nonstr);
-		
-		stringstream resultstr;
+		cout << "Updated commit message written to minedcommit.txt" << endl;
+	}
 
-		for (int i = 0; i < 5; i++)
-		{
-			resultstr << setfill('0') << setw(8) << hex << (int)(hasher.hash[i]);
-		}
+	void findNonce(unsigned int threadId)
+	{
+		sha1::Hasher hasher(baseMessage);
 
-		if (goal > resultstr.str())
+		for (unsigned long int nonce = threadId; true; nonce+=numthreads)
 		{
-			resultFound = true;
-			result = nonce;
-			cout << "Hash: " << resultstr.str() << endl;
+			char nonstr[17];
+			printNonce(nonce, nonstr);
+			
+			hasher.hashNonce(nonstr);
+			
+			stringstream resultstr;
+
+			for (int i = 0; i < 5; i++)
+			{
+				resultstr << setfill('0') << setw(8) << hex << (int)(hasher.hash[i]);
+			}
+
+			if (goal > resultstr.str())
+			{
+				cout << "Hash: " << resultstr.str() << endl;
+				outputAnswer(nonce);
+				exit(0);
+			}
 		}
 	}
-}
+};
 
 int main(int argc, char** argv)
-{
+{ 
 	if (argc < 5)
 		cout << "Invalid args" << endl << "Usage is <filepath> <target> <#threads> <salt>" << endl;
 	else
 	{
+		//connect to redis
+		redisContext *c = redisConnect("cryptologic.org", 6379);
+		if (c != NULL && c->err) {
+			printf("Error: %s\n", c->errstr);
+			// handle error
+		}
+		cout << "Connected to redis" << endl;
+		
 		string path = argv[1];
 		goal = argv[2];
 		numthreads = atoi(argv[3]);
@@ -89,28 +109,23 @@ int main(int argc, char** argv)
 
 		//spawn threads
 		thread* threads = new thread[numthreads];
-		for (int i = 0; i < numthreads-1; i++)
+		for (int i = 0; i < numthreads; i++)
+		{
 			threads[i] = thread(findNonce, (unsigned int)i);
+			threads[i].detach();
+		}
 			
-		//the main thread may as well do some work too
-		findNonce(numthreads-1);
+		redisReply *reply = (redisReply *)redisCommand(c,"SUBSCRIBE gitcoin");
+		freeReplyObject(reply);
+		while(redisGetReply(c,(void**)&reply) == REDIS_OK) {
+			cout << "Solution found elsewhere" << endl;
+			cout << reply->element[2]->str << endl;
+			freeReplyObject(reply);
+			cout << "Terminating" << endl;
+			quick_exit(1);
+		}
 		
-		//join threads and return answer
-		for (int i = 0; i < numthreads -1 ; i++)
-			threads[i].join();
-			
-		char nonstr[17];
-		printNonce(result.load(), nonstr);
-			
-		cout << "Nonce: " << nonstr << endl;
-		
-		
-		ofstream output("minedcommit.txt");
-		output << baseMessage << nonstr;
-		
-		cout << "Updated commit message written to minedcommit.txt" << endl;
-		
-		delete[] threads;
+		return 1;
 	}
 }
 
