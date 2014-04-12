@@ -1,16 +1,30 @@
-
-1) implement diffe-hellman
-
-2) encrypt communications
-
-3) message integrity -> key management?
-Create botnet in tree?
+Create botnet in tree
 each can only be contacted by one that created it
+the bot that created it has a private key, all the children have the public key
+each bot generates its own private key
+=> need tree structure otherwise if the botnet is honeypotted it wont compromise anything
+=> all bots freely give out unencrypted public key
+child cannot contact parent
+child sends challenge to parent of a timestamp and g^a encrypted with public key
+parent sends back signed timestamp and g^b and with diffe-hellman g^b
 
-4) resist replay attack
+Authentication process
+Assumptions: child has secure public key, parent has private key
+parent sends plain text request for connection to child
+child send challenge: encrypted random number and g^a with parents public key
+parent decrypts the message then replies the same msg with [ random number g^b ] signed with private key
+child verifies parent
+both then complete diffe-hellman and get shared key
+hash the key to get session key
+communication is encrypted with this session key
 
+issues: good random number generator
+generate MAC no
+generate 'a' in diffe-hellman
 
-1) Define this as standard:
+NB: parent MUST ignore all uninitiated connection attempts from child
+
+Define this as standard for diffe-hellman:
 4096-bit MODP Group
 
    This group is assigned id 16.
@@ -43,5 +57,3 @@ each can only be contacted by one that created it
       FFFFFFFF FFFFFFFF
 
    The generator is: 2.
-
-Choose a value 'a' => randomNoGen method???
