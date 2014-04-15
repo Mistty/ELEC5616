@@ -29,6 +29,8 @@ class StealthConn(object):
 
         # client is the parent - has private rsaKey
         if self.client:
+            if not self.rsaKey.has_private():
+                raise RuntimeError("Client needs the private key")
             # initialize dh
             my_public_key, my_private_key = create_dh_key()
             # Receive the challenge from the child (iv g**a)
