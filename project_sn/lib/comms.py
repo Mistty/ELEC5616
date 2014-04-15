@@ -68,8 +68,6 @@ class StealthConn(object):
             if iv != self.iv:
                 raise RuntimeError("IV given was incorrect, challenge failed")
             msg_to_be_verified = response[:indexs[1]]
-            print("Msg to be verified:" + str(msg_to_be_verified))
-            print(len(msg_to_be_verified))
             signature = response[indexs[1]+1:]
             h = SHA.new()
             h.update(msg_to_be_verified)
@@ -80,9 +78,9 @@ class StealthConn(object):
             shared_hash = calculate_dh_secret(their_public_key, my_private_key)            
 
         print("Shared hash: {}".format(shared_hash))
-        print("Length: " + str(len(shared_hash)))
         # set up AES cipher
         self.cipher = AES.new(shared_hash[:32], AES.MODE_CFB, self.iv.to_bytes(AES.block_size, byteorder='big'));
+        print("Authentication Successful")
 
     def send(self, data):
         if self.cipher:
