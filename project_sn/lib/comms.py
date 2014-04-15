@@ -102,7 +102,10 @@ class StealthConn(object):
     def recv(self):
         # Decode the data's length from an unsigned two byte int ('H')
         pkt_len_packed = self.conn.recv(struct.calcsize('H'))
-        unpacked_contents = struct.unpack('H', pkt_len_packed)
+        try:
+            unpacked_contents = struct.unpack('H', pkt_len_packed)
+        except struct.error:
+            return b''
         pkt_len = unpacked_contents[0]
 
         encrypted_data = self.conn.recv(pkt_len)

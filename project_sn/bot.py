@@ -97,5 +97,17 @@ if __name__ == "__main__":
         # Exit command
         elif cmd[0].lower() == "quit" or cmd[0].lower() == "exit":
             break
+        elif cmd[0].lower() == "help":
+            print("Possible commands are:")
+            print("p2p echo - connect + authenticate to another bot and echo between")
+            print("p2p upload <file> - connect + authenticate to another bot and send a file")
+            print("download <file> - connect to 'pastebot.net' and download file")
+            print("upload <file> - connect to 'pastebot.net' and upload file")
+            print("mine - mine a bitcoin")
+            print("harvest - havest a username/password")
+            print("list - list valuables stored")
+            print("quit")
+            print("exit")
+            print("help - print this menu")
         else:
             print("Command not recognised")
