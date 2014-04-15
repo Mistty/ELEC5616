@@ -11,8 +11,8 @@ parent sends back signed timestamp and g^b and with diffe-hellman g^b
 Authentication process
 Assumptions: child has secure public key, parent has private key
 parent sends plain text request for connection to child
-child send challenge: encrypted random number and g^a with parents public key
-parent decrypts the message then replies the same msg with [ random number g^b ] signed with private key
+child send challenge: encrypted iv and g^a with parents public key
+parent decrypts the message then replies the same msg with [ iv g^b signed ] signed with private key
 child verifies parent
 both then complete diffe-hellman and get shared key
 hash the key to get session key
