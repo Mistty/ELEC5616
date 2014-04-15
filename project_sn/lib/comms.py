@@ -24,6 +24,9 @@ class StealthConn(object):
         if not self.rsaKey:
             raise RuntimeError("Rsa key must be initialized")
 
+        iv_length = AES.block_size
+        dh_key_length = 256
+
         # client is the parent
         if self.client:
             # initialize dh
@@ -32,13 +35,12 @@ class StealthConn(object):
             encrypted_data = self.recv()
             tmpCipher = PKCS1_OAEP.new(self.rsaKey)
             decrypted_data = tmpCipher.decrypt(encrypted_data)
-            indexs = [i for i in range(len(decrypted_data)) if decrypted_data[i:(i+1)] == b' ']
-            if len(indexs) < 1:
+            if len(decrypted_data) < iv_length + 1 + dh_key_length:
                 raise RuntimeError("Expected 'IV g**a'")
-            self.iv = int.from_bytes(decrypted_data[:indexs[0]], byteorder='big')
-            their_public_key = int.from_bytes(decrypted_data[indexs[0]+1:], byteorder='big')
+            self.iv = int.from_bytes(decrypted_data[:iv_length], byteorder='big')
+            their_public_key = int.from_bytes(decrypted_data[iv_length+1:], byteorder='big')
             # Respond to the challenge by the child
-            msg_to_be_signed = decrypted_data[:indexs[0]] + b' ' + my_public_key.to_bytes(256, byteorder='big')
+            msg_to_be_signed = decrypted_data[:iv_length] + b' ' + my_public_key.to_bytes(dh_key_length, byteorder='big')
             h = SHA.new()
             h.update(msg_to_be_signed)
             signer = PKCS1_PSS.new(self.rsaKey)
@@ -55,31 +57,30 @@ class StealthConn(object):
             # dh init
             my_public_key, my_private_key = create_dh_key()
             # send the challenge
-            challenge = self.iv.to_bytes(AES.block_size, byteorder='big') + bytes(' ', "ascii") + my_public_key.to_bytes(256, byteorder='big')
+            challenge = self.iv.to_bytes(AES.block_size, byteorder='big') + bytes(' ', "ascii") + my_public_key.to_bytes(dh_key_length, byteorder='big')
             tmpCipher = PKCS1_OAEP.new(self.rsaKey)
             encrypted_data = tmpCipher.encrypt(challenge)
             self.send(encrypted_data)
             # verify the response
             response = self.recv()
-            indexs = [i for i in range(len(response)) if response[i:(i+1)] == b' ']
-            if len(indexs) < 2:
+            if len(response) < iv_length + 1 + dh_key_length + 2:
                 raise RuntimeError("Expected 'IV g**b signed'")
-            iv = int.from_bytes(response[:indexs[0]], byteorder='big')
+            iv = int.from_bytes(response[:iv_length], byteorder='big')
             if iv != self.iv:
                 raise RuntimeError("IV given was incorrect, challenge failed")
-            msg_to_be_verified = response[:indexs[1]]
-            signature = response[indexs[1]+1:]
+            msg_to_be_verified = response[:(iv_length + 1 + dh_key_length)]
+            signature = response[(iv_length + 1 + dh_key_length + 1):]
             h = SHA.new()
             h.update(msg_to_be_verified)
             signer = PKCS1_PSS.new(self.rsaKey)            
             if not signer.verify(h, signature):
                 raise RuntimeError("Signature was incorrect, challenge failed")
-            their_public_key = int.from_bytes(response[indexs[0]+1:indexs[1]], byteorder='big')
+            their_public_key = int.from_bytes(response[(iv_length+1):(dh_key_length + iv_length + 1)], byteorder='big')
             shared_hash = calculate_dh_secret(their_public_key, my_private_key)            
 
         print("Shared hash: {}".format(shared_hash))
         # set up AES cipher
-        self.cipher = AES.new(shared_hash[:32], AES.MODE_CFB, self.iv.to_bytes(AES.block_size, byteorder='big'));
+        self.cipher = AES.new(shared_hash, AES.MODE_CFB, self.iv.to_bytes(AES.block_size, byteorder='big'));
         print("Authentication Successful")
 
     def send(self, data):

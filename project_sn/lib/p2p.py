@@ -59,6 +59,7 @@ def accept_connection(conn):
     except socket.error:
         print("Connection closed unexpectedly")
     except RuntimeError:
+        traceback.print_exc()
         print("Authentication Failed")
 
 def bot_server():
