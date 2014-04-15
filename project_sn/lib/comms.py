@@ -27,11 +27,11 @@ class StealthConn(object):
         iv_length = AES.block_size
         dh_key_length = 256
 
-        # client is the parent
+        # client is the parent - has private rsaKey
         if self.client:
             # initialize dh
             my_public_key, my_private_key = create_dh_key()
-            # Receive the challenge from the child
+            # Receive the challenge from the child (iv g**a)
             encrypted_data = self.recv()
             tmpCipher = PKCS1_OAEP.new(self.rsaKey)
             decrypted_data = tmpCipher.decrypt(encrypted_data)
@@ -39,7 +39,7 @@ class StealthConn(object):
                 raise RuntimeError("Expected 'IV g**a'")
             self.iv = int.from_bytes(decrypted_data[:iv_length], byteorder='big')
             their_public_key = int.from_bytes(decrypted_data[iv_length+1:], byteorder='big')
-            # Respond to the challenge by the child
+            # Respond to the challenge by the child (iv g**b signed)
             msg_to_be_signed = decrypted_data[:iv_length] + b' ' + my_public_key.to_bytes(dh_key_length, byteorder='big')
             h = SHA.new()
             h.update(msg_to_be_signed)
@@ -50,10 +50,10 @@ class StealthConn(object):
             # Obtain our shared secret
             shared_hash = calculate_dh_secret(their_public_key, my_private_key)
 
-        # server is the child
+        # server is the child - has public rsaKey
         if self.server:
             # Generate the IV
-            self.iv = int.from_bytes(Random.new().read(AES.block_size), byteorder='big')
+            self.iv = int.from_bytes(Random.new().read(iv_length), byteorder='big')
             # dh init
             my_public_key, my_private_key = create_dh_key()
             # send the challenge
@@ -68,6 +68,7 @@ class StealthConn(object):
             iv = int.from_bytes(response[:iv_length], byteorder='big')
             if iv != self.iv:
                 raise RuntimeError("IV given was incorrect, challenge failed")
+            # verify the signature
             msg_to_be_verified = response[:(iv_length + 1 + dh_key_length)]
             signature = response[(iv_length + 1 + dh_key_length + 1):]
             h = SHA.new()
@@ -80,7 +81,7 @@ class StealthConn(object):
 
         print("Shared hash: {}".format(shared_hash))
         # set up AES cipher
-        self.cipher = AES.new(shared_hash, AES.MODE_CFB, self.iv.to_bytes(AES.block_size, byteorder='big'));
+        self.cipher = AES.new(shared_hash, AES.MODE_CFB, self.iv.to_bytes(iv_length, byteorder='big'));
         print("Authentication Successful")
 
     def send(self, data):
