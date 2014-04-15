@@ -3,11 +3,14 @@ import struct
 from Crypto import Random
 from Crypto.Cipher import AES
 from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.Signature import PKCS1_PSS
+from Crypto.Hash import SHA
 
 from dh import create_dh_key, calculate_dh_secret
 
 class StealthConn(object):
-    def __init__(self, conn, client=False, server=False, verbose=False, rsaKey=False):
+    def __init__(self, conn, rsaKey, client=False, server=False, verbose=False):
         self.conn = conn
         self.cipher = None
         self.client = client
@@ -19,28 +22,67 @@ class StealthConn(object):
     def initiate_session(self):
         # Perform the initial connection handshake for agreeing on a shared secret
         if not self.rsaKey:
-            return
+            raise RuntimeError("Rsa key must be initialized")
 
-        ### TODO: Your code here!
-        # This can be broken into code run just on the server or just on the client
-        if self.server:
+        # client is the parent
+        if self.client:
+            # initialize dh
             my_public_key, my_private_key = create_dh_key()
-            # Send them our public key
-            self.send(bytes(str(my_public_key), "ascii"))
-            # Receive encrypted iv with dh public key
+            # Receive the challenge from the child
             encrypted_data = self.recv()
-            decrypted_data = self.rsaKey.decrypt(encrypted_data).split(
+            tmpCipher = PKCS1_OAEP.new(self.rsaKey)
+            decrypted_data = tmpCipher.decrypt(encrypted_data)
+            indexs = [i for i in range(len(decrypted_data)) if decrypted_data[i:(i+1)] == b' ']
+            if len(indexs) < 1:
+                raise RuntimeError("Expected 'IV g**a'")
+            self.iv = int.from_bytes(decrypted_data[:indexs[0]], byteorder='big')
+            their_public_key = int.from_bytes(decrypted_data[indexs[0]+1:], byteorder='big')
+            # Respond to the challenge by the child
+            msg_to_be_signed = decrypted_data[:indexs[0]] + b' ' + my_public_key.to_bytes(256, byteorder='big')
+            h = SHA.new()
+            h.update(msg_to_be_signed)
+            signer = PKCS1_PSS.new(self.rsaKey)
+            signature = signer.sign(h)
+            # send the signed message
+            self.send(msg_to_be_signed + bytes(' ',"ascii") + signature)
             # Obtain our shared secret
             shared_hash = calculate_dh_secret(their_public_key, my_private_key)
-        if self.client:
-            self.iv = Random.new().read(AES.block_size)
+
+        # server is the child
+        if self.server:
+            # Generate the IV
+            self.iv = int.from_bytes(Random.new().read(AES.block_size), byteorder='big')
             # dh init
             my_public_key, my_private_key = create_dh_key()
-            # 
+            # send the challenge
+            challenge = self.iv.to_bytes(AES.block_size, byteorder='big') + bytes(' ', "ascii") + my_public_key.to_bytes(256, byteorder='big')
+            tmpCipher = PKCS1_OAEP.new(self.rsaKey)
+            encrypted_data = tmpCipher.encrypt(challenge)
+            self.send(encrypted_data)
+            # verify the response
+            response = self.recv()
+            indexs = [i for i in range(len(response)) if response[i:(i+1)] == b' ']
+            if len(indexs) < 2:
+                raise RuntimeError("Expected 'IV g**b signed'")
+            iv = int.from_bytes(response[:indexs[0]], byteorder='big')
+            if iv != self.iv:
+                raise RuntimeError("IV given was incorrect, challenge failed")
+            msg_to_be_verified = response[:indexs[1]]
+            print("Msg to be verified:" + str(msg_to_be_verified))
+            print(len(msg_to_be_verified))
+            signature = response[indexs[1]+1:]
+            h = SHA.new()
+            h.update(msg_to_be_verified)
+            signer = PKCS1_PSS.new(self.rsaKey)            
+            if not signer.verify(h, signature):
+                raise RuntimeError("Signature was incorrect, challenge failed")
+            their_public_key = int.from_bytes(response[indexs[0]+1:indexs[1]], byteorder='big')
+            shared_hash = calculate_dh_secret(their_public_key, my_private_key)            
 
         print("Shared hash: {}".format(shared_hash))
-        # AES
-        self.cipher = AES.new(shared_hash, AES.MODE_CBC, self.iv);
+        print("Length: " + str(len(shared_hash)))
+        # set up AES cipher
+        self.cipher = AES.new(shared_hash[:32], AES.MODE_CFB, self.iv.to_bytes(AES.block_size, byteorder='big'));
 
     def send(self, data):
         if self.cipher:

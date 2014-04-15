@@ -3,6 +3,8 @@ import threading
 
 from lib.comms import StealthConn
 from lib.files import p2p_download_file
+from Crypto.PublicKey import RSA
+import traceback
 
 # Keep track of where our server is
 # This is primarily so we don't try to talk to ourselves
@@ -12,19 +14,25 @@ def find_bot():
     print("Finding another bot...")
     port = 1337
     conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    f = open("clientPrivate.pem", 'r')
+    rsaKey = RSA.importKey(f.read())
+    f.close()
     while 1:
         if port == server_port:
             # Don't connect to yourself, silly bot!
             port += 1
         else:
             try:
-                print("Found bot on port %d" % port)
                 conn.connect(("localhost", port))
-                sconn = StealthConn(conn, client=True)
+                print("Found bot on port %d" % port)
+                sconn = StealthConn(conn, rsaKey, client=True)
                 return sconn
             except socket.error:
                 print("No bot was listening on port %d" % port)
                 port += 1
+            except RuntimeError:
+                traceback.print_exc()
+                print("Authentication Failed")
 
 def echo_server(sconn):
     while 1:
@@ -38,7 +46,10 @@ def echo_server(sconn):
 
 def accept_connection(conn):
     try:
-        sconn = StealthConn(conn, server=True)
+        f = open("serverPublic.pem", 'r')
+        rsaKey = RSA.importKey(f.read())
+        f.close()
+        sconn = StealthConn(conn, rsaKey, server=True)
         # The sender is either going to chat to us or send a file
         cmd = sconn.recv()
         if cmd == b'ECHO':
@@ -47,6 +58,8 @@ def accept_connection(conn):
             p2p_download_file(sconn)
     except socket.error:
         print("Connection closed unexpectedly")
+    except RuntimeError:
+        print("Authentication Failed")
 
 def bot_server():
     global server_port

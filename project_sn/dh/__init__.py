@@ -32,7 +32,7 @@ def create_dh_key():
 
 def calculate_dh_secret(their_public, my_private):
     # Calculate the shared secret
-    shared_secret = pow(their_public, my_private, prime)
+    shared_secret = pow(their_public, my_private, prime).to_bytes(256, byteorder = 'big')
 
     # Hash the value so that:
     # (a) There's no bias in the bits of the output
@@ -40,5 +40,5 @@ def calculate_dh_secret(their_public, my_private):
     # (b) We can convert to raw bytes easily
     # (c) We could add additional information if we wanted
     # Feel free to change SHA256 to a different value if more appropriate
-    shared_hash = SHA256.new(bytes(shared_secret, "ascii")).hexdigest()
+    shared_hash = SHA256.new(shared_secret).hexdigest()
     return shared_hash
