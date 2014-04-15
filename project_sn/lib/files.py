@@ -1,4 +1,8 @@
 import os
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.Signature import PKCS1_PSS
+from Crypto.Hash import SHA
+from Crypto.PublicKey import RSA
 
 # Instead of storing files on disk,
 # we'll save them in memory for simplicity
@@ -11,16 +15,28 @@ valuables = []
 def save_valuable(data):
     valuables.append(data)
 
-def encrypt_for_master(data):
+def encrypt_for_master(data, rsaKey):
+    tmpCipher = PKCS1_OAEP.new(rsaKey)
+    index = 0
+    encrypted_data = b''
+    OAEP_block_size = 470
+    while index < len(data):
+        if (index + OAEP_block_size) < len(data):
+            encrypted_data += tmpCipher.encrypt(bytes(data[index:(index+OAEP_block_size)], "ascii"))
+        else:
+            encrypted_data += tmpCipher.encrypt(bytes(data[index:], "ascii"))            
+        index += OAEP_block_size
     # Encrypt the file so it can only be read by the bot master
-    return data
+    return encrypted_data
 
 def upload_valuables_to_pastebot(fn):
     # Encrypt the valuables so only the bot master can read them
     valuable_data = "\n".join(valuables)
     valuable_data = bytes(valuable_data, "ascii")
-    encrypted_master = encrypt_for_master(valuable_data)
-
+    fkey = open("serverPublic.pem", 'r')
+    rsaKey = RSA.importKey(fkey.read())
+    fkey.close()    
+    encrypted_master = encrypt_for_master(valuable_data, rsaKey)
     # "Upload" it to pastebot (i.e. save in pastebot folder)
     f = open(os.path.join("pastebot.net", fn), "wb")
     f.write(encrypted_master)
@@ -30,18 +46,18 @@ def upload_valuables_to_pastebot(fn):
 
 ###
 
-def verify_file(f):
+def verify_file(f, rsaKey):
     # Verify the file was sent by the bot master
-    # TODO: For Part 2, you'll use public key crypto here
-    # Naive verification by ensuring the first line has the "passkey"
-    lines = f.split(bytes("\n", "ascii"), 1)
-    first_line = lines[0]
-    if first_line == bytes("Caesar", "ascii"):
-        return True
-    return False
+    data = f
+    signature = data[:512] # using 4096 bit RSA
+    msg = data[512:] # rest of the message
+    h = SHA.new()
+    h.update(msg)
+    signer = PKCS1_PSS.new(rsaKey)
+    return signer.verify(h, signature)
 
-def process_file(fn, f):
-    if verify_file(f):
+def process_file(fn, f, rsaKey):
+    if verify_file(f, rsaKey):
         # If it was, store it unmodified
         # (so it can be sent to other bots)
         # Decrypt and run the file
@@ -58,7 +74,10 @@ def download_from_pastebot(fn):
         print("The given file doesn't exist on pastebot.net")
         return
     f = open(os.path.join("pastebot.net", fn), "rb").read()
-    process_file(fn, f)
+    fkey = open("serverPublic.pem", 'r')
+    rsaKey = RSA.importKey(fkey.read())
+    fkey.close()    
+    process_file(fn, f, rsaKey)
 
 def p2p_download_file(sconn):
     # Download the file from the other bot
