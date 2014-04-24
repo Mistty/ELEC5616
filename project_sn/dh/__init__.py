@@ -3,8 +3,6 @@ from Crypto.Random import random
 
 from lib.helpers import read_hex
 
-# Project TODO: Is this the best choice of prime? Why? Why not? Feel free to replace!
-
 # 2048 bit safe prime for Diffie-Hellman key exchange
 # obtained from RFC 3526
 raw_prime = """FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1
@@ -22,12 +20,10 @@ DE2BCBF6 95581718 3995497C EA956AE5 15D22618 98FA0510
 # Convert from the value supplied in the RFC to an integer
 prime = read_hex(raw_prime)
 
-# Project TODO: write the appropriate code to perform DH key exchange
-
 def create_dh_key():
     # Creates a Diffie-Hellman key
     # Returns (public, private)
-    a = random.randint(0, prime - 2)
+    a = random.randint(0, prime - 1)
     return (pow(2,a,prime), a)
 
 def calculate_dh_secret(their_public, my_private):

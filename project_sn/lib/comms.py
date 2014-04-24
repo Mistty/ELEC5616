@@ -6,6 +6,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Signature import PKCS1_PSS
 from Crypto.Hash import SHA
+import binascii
 
 from dh import create_dh_key, calculate_dh_secret
 
@@ -88,6 +89,8 @@ class StealthConn(object):
 
     def send(self, data):
         if self.cipher:
+            crc = binascii.crc32(data).to_bytes(4,'big')
+            data = data + crc
             encrypted_data = self.cipher.encrypt(data)
             if self.verbose:
                 print("Original data: {}".format(data))
@@ -117,6 +120,16 @@ class StealthConn(object):
                 print("Receiving packet of length {}".format(pkt_len))
                 print("Encrypted data: {}".format(repr(encrypted_data)))
                 print("Original data: {}".format(data))
+            if len(data) < 5:
+                self.close()
+                print('CRC error')
+                return b''
+            crc = binascii.crc32(data[:-4]).to_bytes(4, 'big')
+            if crc != data[-4:]:
+                self.close()
+                print('CRC error')
+                return b''
+            data = data[:-4]
         else:
             data = encrypted_data
 
