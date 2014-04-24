@@ -18,6 +18,7 @@ class StealthConn(object):
         self.server = server
         self.verbose = verbose
         self.rsaKey = rsaKey
+        self.crcSize = 1 # between 1 and 4 bytes
         self.initiate_session()
 
     def initiate_session(self):
@@ -89,7 +90,7 @@ class StealthConn(object):
 
     def send(self, data):
         if self.cipher:
-            crc = binascii.crc32(data).to_bytes(4,'big')
+            crc = binascii.crc32(data).to_bytes(4,'big')[:self.crcSize]
             data = data + crc
             encrypted_data = self.cipher.encrypt(data)
             if self.verbose:
@@ -120,16 +121,16 @@ class StealthConn(object):
                 print("Receiving packet of length {}".format(pkt_len))
                 print("Encrypted data: {}".format(repr(encrypted_data)))
                 print("Original data: {}".format(data))
-            if len(data) < 5:
+            if len(data) < self.crcSize:
                 self.close()
                 print('CRC error')
                 return b''
-            crc = binascii.crc32(data[:-4]).to_bytes(4, 'big')
-            if crc != data[-4:]:
+            crc = binascii.crc32(data[:-self.crcSize]).to_bytes(4, 'big')[:self.crcSize]
+            if crc != data[-self.crcSize:]:
                 self.close()
                 print('CRC error')
                 return b''
-            data = data[:-4]
+            data = data[:-self.crcSize]
         else:
             data = encrypted_data
 
