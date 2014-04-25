@@ -70,7 +70,7 @@ emphstyle={\color{self}\slshape},
 \maketitle
 
 \section{Diffie-Hellman}
-We used a 3073-bit safe prime because it is a larger prime than the skeleton code. We added a variable called prime generator so that the developer can change it from the default of 2. We set it at 3 arbitrarily, but it is generally set to 2, 3 or 5. The private key is a random number between 0 and the prime. It is better to have a large set of numbers that this could be so that it is difficult to guess, however it is pointless making it bigger than the prime because all arithmetic is done modular the prime. Our public key is the standard Diffie-Hellman public key based on the private key and the prime.\\
+We used a 3073-bit safe prime because it is a larger prime than the skeleton code, hence harder to factorise. We added a variable called prime generator so that the developer can change it from the default of 2. We set it at 5 so that the public key is larger and harder to crack, but it is generally set to 2, 3 or 5. The private key is a random number between 0 and the prime. It is better to have a large set of numbers that this could be so that it is difficult to guess, however it is pointless making it bigger than the prime because all arithmetic is done modular the prime. Our public key is the standard Diffie-Hellman public key based on the private key and the prime.\\
 
 Parameters:
 \begin{itemize}
