@@ -7,6 +7,7 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Signature import PKCS1_PSS
 from Crypto.Hash import SHA, SHA256
 import binascii
+from lib.helpers import read_hex
 
 from dh import create_dh_key, calculate_dh_secret
 
@@ -90,7 +91,8 @@ class StealthConn(object):
 
     def send(self, data):
         if self.cipher:
-            crc = bytes(SHA256.new(binascii.crc32(data).to_bytes(4,'big')).hexdigest()[:self.crcSize],"ascii")
+            shaInt = read_hex(SHA256.new(binascii.crc32(data).to_bytes(4, 'big')).hexdigest())
+            crc = shaInt.to_bytes(32, 'big')[:self.crcSize]
             data = data + crc
             encrypted_data = self.cipher.encrypt(data)
             if self.verbose:
@@ -125,7 +127,8 @@ class StealthConn(object):
                 self.close()
                 print('CRC error')
                 return b''
-            crc = bytes(SHA256.new(binascii.crc32(data[:-self.crcSize]).to_bytes(4, 'big')).hexdigest()[:self.crcSize],"ascii")
+            shaInt = read_hex(SHA256.new(binascii.crc32(data[:-self.crcSize]).to_bytes(4, 'big')).hexdigest())
+            crc = shaInt.to_bytes(32, 'big')[:self.crcSize]
             if crc != data[-self.crcSize:]:
                 self.close()
                 print('CRC error')
