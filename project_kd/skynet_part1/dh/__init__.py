@@ -35,15 +35,16 @@ BBE11757 7A615D6C 770988C0 BAD946E2 08E24FA0 74E5AB31
 
 # Convert from the value supplied in the RFC to an integer
 prime = read_hex(raw_prime)
+g = 3	# Prime generator (not in original code)
 
 # Project TODO: write the appropriate code to perform DH key exchange
 def create_dh_key():
     # Creates a Diffie-Hellman key
     # Returns (public, private)
     #a = random.randint(0, int(2**8))
-    a = random.randint(0,prime)
-    b = pow(2,a) % prime
-    return (b, a)
+    private = random.randint(0,prime)
+    public  = pow(g,a) % prime
+    return (public, private)
 
 def calculate_dh_secret(their_public, my_private):
     # Calculate the shared secret
