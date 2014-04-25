@@ -1,6 +1,8 @@
 import struct
 
-from Crypto.Cipher import XOR
+from Crypto import Random
+from Crypto.Hash import HMAC
+from Crypto.Cipher import AES
 
 from dh import create_dh_key, calculate_dh_secret
 
@@ -11,6 +13,7 @@ class StealthConn(object):
         self.client = client
         self.server = server
         self.verbose = verbose
+        self.shared_hash = None
         self.initiate_session()
 
     def initiate_session(self):
@@ -25,15 +28,20 @@ class StealthConn(object):
             # Receive their public key
             their_public_key = int(self.recv())
             # Obtain our shared secret
-            shared_hash = calculate_dh_secret(their_public_key, my_private_key)
-            print("Shared hash: {}".format(shared_hash))
+            self.shared_hash = calculate_dh_secret(their_public_key, my_private_key)
+            print("Shared hash: {}".format(self.shared_hash))
 
-        # Default XOR algorithm can only take a key of length 32
-        self.cipher = XOR.new(shared_hash[:4])
+        # Use AES in CFB mode for encryption
+        iv = shared_hash[:AES.block_size]
+        self.cipher = AES.new(key, AES.MODE_CFB, iv)
 
     def send(self, data):
+		#Create a HMAC and prepend it to the message
+        h = HMAC.new(self.shared_hash)
+        h.update(data)
+        mac_data = h.hexdigest() + data
         if self.cipher:
-            encrypted_data = self.cipher.encrypt(data)
+            encrypted_data = self.cipher.encrypt(mac_data)
             if self.verbose:
                 print("Original data: {}".format(data))
                 print("Encrypted data: {}".format(repr(encrypted_data)))
@@ -62,6 +70,14 @@ class StealthConn(object):
         else:
             data = encrypted_data
 
+		#strip off the HMAC and verify the message
+        h = HMAC.new(self.shared_hash)
+        hmac = data[:h.digest_size]
+        data = data[h.digest_size:]
+        h.update(data)
+        if h.hexdigest() != hmac:
+        	return None	#Bad message - return none?
+			
         return data
 
     def close(self):
