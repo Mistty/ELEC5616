@@ -43,7 +43,7 @@ def create_dh_key():
     # Returns (public, private)
     #a = random.randint(0, int(2**8))
     private = random.randint(0,prime)
-    public  = pow(g,a) % prime
+    public  = pow(g, private, prime)
     return (public, private)
 
 def calculate_dh_secret(their_public, my_private):
