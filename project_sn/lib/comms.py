@@ -6,7 +6,6 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Signature import PKCS1_PSS
 from Crypto.Hash import SHA, SHA256
-import binascii
 from lib.helpers import read_hex
 
 from dh import create_dh_key, calculate_dh_secret
@@ -19,7 +18,7 @@ class StealthConn(object):
         self.server = server
         self.verbose = verbose
         self.rsaKey = rsaKey
-        self.crcSize = 4
+        self.checkSize = 4
         self.initiate_session()
 
     def initiate_session(self):
@@ -91,9 +90,8 @@ class StealthConn(object):
 
     def send(self, data):
         if self.cipher:
-            shaInt = read_hex(SHA256.new(binascii.crc32(data).to_bytes(4, 'big')).hexdigest())
-            crc = shaInt.to_bytes(32, 'big')[:self.crcSize]
-            data = data + crc
+            shaInt = read_hex(SHA256.new(data).hexdigest()).to_bytes(32, 'big')[:self.checkSize]
+            data = data + shaInt
             encrypted_data = self.cipher.encrypt(data)
             if self.verbose:
                 print("Original data: {}".format(data))
@@ -123,17 +121,16 @@ class StealthConn(object):
                 print("Receiving packet of length {}".format(pkt_len))
                 print("Encrypted data: {}".format(repr(encrypted_data)))
                 print("Original data: {}".format(data))
-            if len(data) < self.crcSize:
+            if len(data) < self.checkSize:
                 self.close()
-                print('CRC error')
+                print('Hash error')
                 return b''
-            shaInt = read_hex(SHA256.new(binascii.crc32(data[:-self.crcSize]).to_bytes(4, 'big')).hexdigest())
-            crc = shaInt.to_bytes(32, 'big')[:self.crcSize]
-            if crc != data[-self.crcSize:]:
+            shaInt = read_hex(SHA256.new(data[:-self.checkSize]).hexdigest()).to_bytes(32, 'big')[:self.checkSize]
+            if shaInt != data[-self.checkSize:]:
                 self.close()
-                print('CRC error')
+                print('Hash error')
                 return b''
-            data = data[:-self.crcSize]
+            data = data[:-self.checkSize]
         else:
             data = encrypted_data
 
