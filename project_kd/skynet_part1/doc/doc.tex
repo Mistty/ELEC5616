@@ -1,8 +1,8 @@
 \title{Project 1 :: Defeating SkyNet \\ (Security Essentials)}
 \author{Dean Pisani \\ Kristy Hughes}
 
-\documentclass[12pt]{article}
-%\usepackage{geometry}
+\documentclass[12pt,a4paper]{article}
+\usepackage[top=1in,bottom=1.4in, left=0.8in, right=0.8in]{geometry}
 \usepackage{listings}
 \usepackage{color}
 \usepackage{setspace}
@@ -58,15 +58,6 @@ emphstyle={\color{self}\slshape},
 }}{}
 
 \begin{document}
-%lstset{
-%	language=Python,
-%	showstringspaces=false,
-%	formfeed=newpage,
-%        tabsize=4,
-%	commentstyle=itshape,
-%	basicstyle=ttfamily,
-%	morekeywords={models, lambda, forms}
-%}
 \maketitle
 
 \section{Diffie-Hellman}
@@ -80,6 +71,7 @@ Parameters:
 \item Public Key: $g^{\text{private\_key}} \mod \text{raw\_prime}$
 \end{itemize}
 
+\begin{center}
 \begin{python}
 # raw_prime is a 3073-bit safe prime from RFC 3526
 prime = read_hex(raw_prime)
@@ -97,10 +89,18 @@ def create_dh_key():
     public  = pow(g, private, prime)
     return (public, private)
 \end{python}
+\end{center}
+
 \section{Cypher}
+We chose AES as our cypher because although TDES is cryptographically secure, it is not as fast or as secure as AES. AES is now industry standard thus we thought it best to use it. 
 \section{Tampering Prevention}
+To prevent tampering of the message we use data origin authentication. To do this, we implement HMAC which hashes the message using the sender's MAC address as the key. Since a MAC address is unique to the user the attacker is unable to replicate this or tamper with the hashed message.
+
 \section{Replay Attack Prevention}
+Replay attacks occur when an attacker takes a previously sent encrypted message and sends it to the server again. To prevent this, the user appends a timestamp at the beginning of the message and when the server decrypts it, it checks that the timestamp of the current message is later than the timestamp of the previous message recieved.
+
 \section{Peer to Peer file transfers}
+
 \section{In the Real World}
 
 \end{document}
