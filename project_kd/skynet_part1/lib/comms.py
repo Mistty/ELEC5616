@@ -32,7 +32,7 @@ class StealthConn(object):
             print("Shared hash: {}".format(self.shared_hash))
 
         # Use AES in CFB mode for encryption
-        iv = shared_hash[:AES.block_size]
+        iv = bytes(shared_hash[:AES.block_size])
         self.cipher = AES.new(key, AES.MODE_CFB, iv)
 
     def send(self, data):
