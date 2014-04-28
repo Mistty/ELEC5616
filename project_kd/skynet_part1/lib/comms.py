@@ -41,7 +41,7 @@ class StealthConn(object):
             self.shared_hash = bytes.fromhex(self.shared_hash)
 
         # Use AES in CFB mode for encryption
-        iv = b'Sixteen byte vec'
+        iv = self.shared_hash[:16]
         self.cipher = AES.new(self.shared_hash, AES.MODE_CFB, iv)
 
     def send(self, data):
