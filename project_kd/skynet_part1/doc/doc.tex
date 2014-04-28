@@ -1,4 +1,4 @@
-\title{\vspace{-4ex} \large Project 1 :: Defeating SkyNet \\ \large (Security Essentials)\vspace{-2ex}}
+\title{\vspace{-5ex} \large Project 1 :: Defeating SkyNet \\ \large (Security Essentials)\vspace{-2ex}}
 \author{\large Dean Pisani 311210775 \\ \large Kristy Hughes 310186293\vspace{-2ex}}
 \date{}
 
@@ -10,7 +10,7 @@
 \usepackage{amsmath}
 \usepackage{sectsty}
 
-\sectionfont{\fontsize{12}{15}\selectfont}
+\sectionfont{\fontsize{11}{9}\selectfont}
 
 % Set up python syntax highlighting
 \definecolor{Code}{rgb}{0,0,0}
@@ -64,8 +64,10 @@ emphstyle={\color{self}\slshape},
 \begin{document}
 \maketitle
 \small
+\setlength{\parindent}{0pt}
 
 \section{Authentication}
+\vspace{-2ex}
 Our authentication system used Diffie-Hellman. We used a 3073-bit safe prime because it is a larger prime than the skeleton code, hence harder to factorise. We added a variable called prime generator so that the developer can change it from the default of 2. We set it at 5 so that the public key is larger and harder to crack, but it is generally set to 2, 3 or 5. The private key is a random number between 0 and the prime. It is better to have a large set of numbers that this could be so that it is difficult to guess, however it is pointless making it bigger than the prime because all arithmetic is done modular the prime. Our public key is the standard Diffie-Hellman public key based on the private key and the prime.\\
 
 Parameters:
@@ -77,6 +79,7 @@ Parameters:
 \end{itemize}
 
 \begin{center}
+\vspace{-2ex}
 \begin{python}
 # raw_prime is a 3073-bit safe prime from RFC 3526
 prime = read_hex(raw_prime)
@@ -97,10 +100,12 @@ def create_dh_key():
 \end{center}
 
 \section{Confidentiality}
+\vspace{-2ex}
 To preserve confidentiality, we encrypted each message using AES. We chose AES as our cypher because although TDES is cryptographically secure, it is not as fast or as secure as AES. AES is now industry standard thus we thought it best to use it. Additionally AES supports key sizes that match the output of our Diffie-Hellman exchange. We used the CBC mode of operation, which is also a commonly used standard. The initialisation vector needs to be both random and shared, and so in order to do this, we used the first 16 characters of the shared secret.
 
 This is the cipher was initialized:
 \begin{center}
+\vspace{-2ex}
 \begin{python}
 from Crypto.Cipher import AES
 if self.server or self.client:
@@ -121,15 +126,20 @@ self.cipher = AES.new(self.shared_hash, AES.MODE_CFB, iv)
 \end{python}
 \end{center}
 And this is how data was encrypted using the cipher:
-\begin{center}\begin{python}
+\begin{center}
+\vspace{-2ex}
+\begin{python}
 encrypted_data = self.cipher.encrypt(data)
 \end{python}\end{center}
 
 \section{Integrity}
+\vspace{-2ex}
 To prevent tampering of the message we use data origin authentication. To do this, we implement HMAC-MD5 which hashes the message using the previously established shared secret as a key. Since this key is known only to the original sender and the recipient an attacker is unable to replicate this or tamper with the hashed message. Although MD5 has known issues, it is known that these problems do not carry on in their use in a HMAC. These authentication codes are attached to messages sent across the network, which can be used to verify the authenticity of messages received by re-computing the HMAC and comparing it to the one sent across.
 
 When a message is sent:
-\begin{center}\begin{python}
+\begin{center}
+\vspace{-2ex}
+\begin{python}
 # Create a HMAC and prepend it to the message
 h = HMAC.new(self.shared_hash)
 h.update(data)
@@ -138,7 +148,9 @@ mac_data = bytes(h.hexdigest() + data.decode("ascii"),"ascii")
 \end{python}\end{center}
 
 When a message is received:
-\begin{center}\begin{python}
+\begin{center}
+\vspace{-2ex}
+\begin{python}
 # creatae the HMAC
 h = HMAC.new(self.shared_hash)
 # split the hmac from the front of the data
@@ -151,9 +163,12 @@ if h.hexdigest() != str(hmac, 'ascii'):
 \end{python}\end{center}
 
 \section{Preventing Replay}
+\vspace{-2ex}
 Replay attacks occur when an attacker takes a previously sent encrypted message and sends it to the server again. To prevent this, the user appends a timestamp at the beginning of the message before it is encrypted and when the server decrypts it, it checks that the timestamp of the current message is later than the timestamp of the previous message received.
 When a message is sent:
-\begin{center}\begin{python}
+\begin{center}
+\vspace{-2ex}
+\begin{python}
 # Add a timestamp to the message
 current_time = datetime.datetime.now()
 # Use the following code to test if it works: subtract some time from now
@@ -163,7 +178,9 @@ mac_data = bytes(timestr, 'ascii') + mac_data
 \end{python}\end{center}
 
 When a message is received:
-\begin{center}\begin{python}
+\begin{center}
+\vspace{-2ex}
+\begin{python}
 # Get the timestamp from the message
 msg_time = datetime.datetime.strptime(tstamp, timestamp_format);
 # Check that it is newer than the last message
@@ -174,9 +191,11 @@ self.last_message_time = msg_time
 \end{python}\end{center}
 
 \section{Peer to Peer file transfers}
+\vspace{-2ex}
 Peer-to-peer file transfers allow botnets to function without relying on a central server to be always operational. Such a transfer mechanism has the advantage that there is no single point of failure, and similarly no single point which would present itself as a target for attackers. Additionally it would also allow a bot net to function even when the central server is inaccessible or blocked. However, a central web server provides a source of authority for all bots in our network, and there is no possibility of outdated files or instructions being distributed across the network like there can be for a peer-to-peer system.
 
 \section{In the Real World}
+\vspace{-2ex}
 In the real world, bot nets could be used to:
 \begin{itemize}
 \item Distributed denial of service attacks (dDoS) by asking all computers connected to the botnet to ping a server.
@@ -184,5 +203,7 @@ In the real world, bot nets could be used to:
 \item Distributing malware through p2p transfers
 \item Brute-forcing by asking all computers to conduct a brute force attack on with different starting points
 \end{itemize}
+
+There are two methods for detecting a bot net: static analysis and behavioral analysis. Static analysis involves checking items against a known list of malicious items. It is difficult to keep this list up to date, making this method not very effective. Behavioural analysis involves monitoring communications in a network for behaviour similar to a bot net. This includes  monitoring network for unusual traffic (such as at unusual times, of unusual volume, protocols such as IRC, SMTP, UDP) and monitoring computers to see if processes are doing more work than expected. However the problem with this method is that it may be legitimate for a computer to be exhibiting these behaviors.
 
 \end{document}
