@@ -3,6 +3,7 @@ import struct
 from Crypto import Random
 from Crypto.Hash import HMAC
 from Crypto.Cipher import AES
+from lib.helpers import read_hex
 
 from dh import create_dh_key, calculate_dh_secret
 
@@ -30,16 +31,21 @@ class StealthConn(object):
             # Obtain our shared secret
             self.shared_hash = calculate_dh_secret(their_public_key, my_private_key)
             print("Shared hash: {}".format(self.shared_hash))
+            self.shared_hash = bytes(hex(read_hex(self.shared_hash)), "ascii")
 
         # Use AES in CFB mode for encryption
-        iv = bytes(shared_hash[:AES.block_size])
-        self.cipher = AES.new(key, AES.MODE_CFB, iv)
+        iv = b'Sixteen byte vec'
+        self.cipher = AES.new(self.shared_hash, AES.MODE_CFB, iv)
 
     def send(self, data):
 		#Create a HMAC and prepend it to the message
-        h = HMAC.new(self.shared_hash)
-        h.update(data)
-        mac_data = h.hexdigest() + data
+        if self.shared_hash != None:
+            h = HMAC.new(self.shared_hash)
+            h.update(data)
+            mac_data = h.hexdigest() + data
+        else:
+            mac_data = data
+			
         if self.cipher:
             encrypted_data = self.cipher.encrypt(mac_data)
             if self.verbose:
@@ -71,12 +77,13 @@ class StealthConn(object):
             data = encrypted_data
 
 		#strip off the HMAC and verify the message
-        h = HMAC.new(self.shared_hash)
-        hmac = data[:h.digest_size]
-        data = data[h.digest_size:]
-        h.update(data)
-        if h.hexdigest() != hmac:
-        	return None	#Bad message - return none?
+        if self.shared_hash != None:
+            h = HMAC.new(self.shared_hash)
+            hmac = data[:h.digest_size]
+            data = data[h.digest_size:]
+            h.update(data)
+            if h.hexdigest() != hmac:
+                return None	#Bad message - return none?
 			
         return data
 
