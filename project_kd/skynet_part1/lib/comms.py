@@ -25,7 +25,7 @@ class StealthConn(object):
         if self.server or self.client:
             my_public_key, my_private_key = create_dh_key()
             # Send them our public key
-            self.send(bytes(str(my_public_key), "ascii"))
+            self.send(str(bytes(str(my_public_key), "ascii")))
             # Receive their public key
             their_public_key = int(self.recv())
             # Obtain our shared secret
@@ -38,7 +38,6 @@ class StealthConn(object):
         self.cipher = AES.new(self.shared_hash, AES.MODE_CFB, iv)
 
     def send(self, data):
-        data=str(data)
 	#Create a HMAC and prepend it to the message
         if self.shared_hash != None:
             h = HMAC.new(self.shared_hash)
