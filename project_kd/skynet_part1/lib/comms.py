@@ -68,8 +68,7 @@ class StealthConn(object):
         # Add a timestamp to the message
         current_time = datetime.datetime.now()
         # Use the following code to test if it works: subtract some time from now
-        #if self.last_message_time != None:
-        ###current_time = self.last_message_time - datetime.timedelta(1,0)
+        #current_time = self.last_message_time - datetime.timedelta(1,0)
         timestr = datetime.datetime.strftime(current_time, timestamp_format)
         mac_data = bytes(timestr, 'ascii') + mac_data
 			
@@ -138,12 +137,11 @@ class StealthConn(object):
         msg_time = datetime.datetime.strptime(tstamp, timestamp_format);
         if self.verbose:
             print(msg_time)
-        if self.last_message_time != None:
-            if msg_time <= self.last_message_time:
-                if self.verbose:
-                    print("Bad timestamp")
-                    print("timestamp:",tstamp)
-                raise RuntimeError("Bad timestamp: message not newer than last recieved one")
+        if msg_time <= self.last_message_time:
+            if self.verbose:
+                print("Bad timestamp")
+                print("timestamp:",tstamp)
+            raise RuntimeError("Bad timestamp: message not newer than last recieved one")
 
         self.last_message_time = msg_time
                  
