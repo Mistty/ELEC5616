@@ -1,8 +1,8 @@
 \title{Project 1 :: Defeating SkyNet \\ (Security Essentials)}
-\author{Dean Pisani 311210775 \\ Kristy Hughes}
+\author{Dean Pisani 311210775 \\ Kristy Hughes 310186293}
 
-\documentclass[12pt,a4paper]{article}
-\usepackage[top=1in,bottom=1.4in, left=0.8in, right=0.8in]{geometry}
+\documentclass[9pt,a4paper]{article}
+\usepackage[top=0.8in,bottom=0.8in, left=0.6in, right=0.6in]{geometry}
 \usepackage{listings}
 \usepackage{color}
 \usepackage{setspace}
@@ -59,6 +59,7 @@ emphstyle={\color{self}\slshape},
 
 \begin{document}
 \maketitle
+\small
 
 \section{Authentication}
 Our authentication system used Diffie-Hellman. We used a 3073-bit safe prime because it is a larger prime than the skeleton code, hence harder to factorise. We added a variable called prime generator so that the developer can change it from the default of 2. We set it at 5 so that the public key is larger and harder to crack, but it is generally set to 2, 3 or 5. The private key is a random number between 0 and the prime. It is better to have a large set of numbers that this could be so that it is difficult to guess, however it is pointless making it bigger than the prime because all arithmetic is done modular the prime. Our public key is the standard Diffie-Hellman public key based on the private key and the prime.\\
