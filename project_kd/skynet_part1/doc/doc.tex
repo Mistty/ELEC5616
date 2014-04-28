@@ -88,12 +88,9 @@ g = 3
 
 # Creates a Diffie-Hellman key
 def create_dh_key():
-    # Choose a random integer between 
-    # 0 and the prime number as the private key
+    # Choose a random integer
     private = random.randint(0,prime)
-    # The public key is is the
-    # prime generator to the power of 
-    # the random private key mod a prime
+    # Make the public key
     public  = pow(g, private, prime)
     return (public, private)
 \end{python}
@@ -171,8 +168,6 @@ When a message is sent:
 \begin{python}
 # Add a timestamp to the message
 current_time = datetime.datetime.now()
-# Use the following code to test if it works: subtract some time from now
-#current_time = self.last_message_time - datetime.timedelta(1,0)
 timestr = datetime.datetime.strftime(current_time, timestamp_format)
 mac_data = bytes(timestr, 'ascii') + mac_data
 \end{python}\end{center}
