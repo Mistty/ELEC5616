@@ -19,7 +19,7 @@ class StealthConn(object):
         self.server = server
         self.verbose = verbose
         self.shared_hash = None
-        self.last_message_time = None
+        self.last_message_time = datetime.datetime.now()
         self.initiate_session()
 
     def initiate_session(self):
@@ -69,7 +69,7 @@ class StealthConn(object):
         current_time = datetime.datetime.now()
         # Use the following code to test if it works: subtract some time from now
         #if self.last_message_time != None:
-        #    current_time = self.last_message_time - datetime.timedelta(1,0)
+        ###current_time = self.last_message_time - datetime.timedelta(1,0)
         timestr = datetime.datetime.strftime(current_time, timestamp_format)
         mac_data = bytes(timestr, 'ascii') + mac_data
 			
@@ -136,7 +136,8 @@ class StealthConn(object):
             print("Shared hash is null")
         
         msg_time = datetime.datetime.strptime(tstamp, timestamp_format);
-        print(msg_time)
+        if self.verbose:
+            print(msg_time)
         if self.last_message_time != None:
             if msg_time <= self.last_message_time:
                 if self.verbose:
