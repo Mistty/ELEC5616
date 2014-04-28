@@ -121,14 +121,63 @@ encrypted_data = self.cipher.encrypt(data)
 \end{python}\end{center}
 
 \section{Integrity}
-To prevent tampering of the message we use data origin authentication. To do this, we implement HMAC-MD5 which hashes the message using the previously established shared secret as a key. Since this key is known only to the original sender and the recipient an attacker is unable to replicate this or tamper with the hashed message. Although MD5 has known issues, it is known that these problems do not carry on in their use in a HMAC. These authentication codes are attached to messages sent across the network, which can be used to verify the authenticity of messages recieved by re-computing the HMAC and comparing it to the one sent across.
+To prevent tampering of the message we use data origin authentication. To do this, we implement HMAC-MD5 which hashes the message using the previously established shared secret as a key. Since this key is known only to the original sender and the recipient an attacker is unable to replicate this or tamper with the hashed message. Although MD5 has known issues, it is known that these problems do not carry on in their use in a HMAC. These authentication codes are attached to messages sent across the network, which can be used to verify the authenticity of messages received by re-computing the HMAC and comparing it to the one sent across.
 
-\section{Replay Attack Prevention}
-Replay attacks occur when an attacker takes a previously sent encrypted message and sends it to the server again. To prevent this, the user appends a timestamp at the beginning of the message and when the server decrypts it, it checks that the timestamp of the current message is later than the timestamp of the previous message recieved.
+When a message is sent:
+\begin{center}\begin{python}
+# Create a HMAC and prepend it to the message
+h = HMAC.new(self.shared_hash)
+h.update(data)
+# Prepend it to the data
+mac_data = bytes(h.hexdigest() + data.decode("ascii"),"ascii")
+\end{python}\end{center}
+
+When a message is received:
+\begin{center}\begin{python}
+# creatae the HMAC
+h = HMAC.new(self.shared_hash)
+# split the hmac from the front of the data
+hmac = data[:h.digest_size*2]
+data = data[h.digest_size*2:]
+h.update(data)
+# check that the hmac matches
+if h.hexdigest() != str(hmac, 'ascii'):
+    raise RuntimeError("Bad message: HMAC does not match")
+\end{python}\end{center}
+
+\section{Preventing Replay}
+Replay attacks occur when an attacker takes a previously sent encrypted message and sends it to the server again. To prevent this, the user appends a timestamp at the beginning of the message before it is encrypted and when the server decrypts it, it checks that the timestamp of the current message is later than the timestamp of the previous message received.
+When a message is sent:
+\begin{center}\begin{python}
+# Add a timestamp to the message
+current_time = datetime.datetime.now()
+# Use the following code to test if it works: subtract some time from now
+#current_time = self.last_message_time - datetime.timedelta(1,0)
+timestr = datetime.datetime.strftime(current_time, timestamp_format)
+mac_data = bytes(timestr, 'ascii') + mac_data
+\end{python}\end{center}
+
+When a message is received:
+\begin{center}\begin{python}
+# Get the timestamp from the message
+msg_time = datetime.datetime.strptime(tstamp, timestamp_format);
+# Check that it is newer than the last message
+if msg_time <= self.last_message_time:
+    raise RuntimeError("Bad timestamp: message not newer than last recieved one")
+# Update the time stamp
+self.last_message_time = msg_time
+\end{python}\end{center}
 
 \section{Peer to Peer file transfers}
 Peer-to-peer file transfers allow botnets to function without relying on a central server to be always operational. Such a transfer mechanism has the advantage that there is no single point of failure, and similarly no single point which would present itself as a target for attackers. Additionally it would also allow a bot net to function even when the central server is inaccessible or blocked. However, a central web server provides a source of authority for all bots in our network, and there is no possibility of outdated files or instructions being distributed across the network like there can be for a peer-to-peer system.
 
 \section{In the Real World}
+In the real world, bot nets could be used to:
+\begin{itemize}
+\item Distributed denial of service attacks (dDoS) by asking all computers connected to the botnet to ping a server.
+\item Sending spam emails
+\item Distributing malware through p2p transfers
+\item Brute-forcing by asking all computers to conduct a brute force attack on with different starting points
+\end{itemize}
 
 \end{document}
