@@ -19,8 +19,8 @@ class StealthConn(object):
         self.server = server
         self.verbose = verbose
         self.shared_hash = None
-        self.initiate_session()
         self.last_message_time = None
+        self.initiate_session()
 
     def initiate_session(self):
         # Perform the initial connection handshake for agreeing on a shared secret
@@ -57,7 +57,7 @@ class StealthConn(object):
             #h.update(b'aaaa')
             if self.verbose:
                 print("Hex digest is:",h.hexdigest())
-            mac_data = h.hexdigest() + data.decode("ascii")
+            mac_data = bytes(h.hexdigest() + data.decode("ascii"),"ascii")
             # Use the following code if you want to test what happens when the HMAC is bad
             #mac_data = h.hexdigest()[:-1] + "a"  + data.decode("ascii")
         else:
