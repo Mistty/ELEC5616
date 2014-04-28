@@ -75,9 +75,6 @@ class StealthConn(object):
         self.conn.sendall(pkt_len)
         if self.verbose:
             print("Sending encrypted data:",encrypted_data,type(encrypted_data))
-	#self.conn.sendall(bytes(encrypted_data,"ascii"))
-        print("Sending encrypted data",encrypted_data)
-        
         self.conn.sendall(encrypted_data)
 
 
@@ -90,7 +87,8 @@ class StealthConn(object):
             print("Packet length is",pkt_len)
 
         encrypted_data = self.conn.recv(pkt_len)
-        print("Received Encrypted Data:",encrypted_data)
+        if self.verbose:
+            print("Received Encrypted Data:",encrypted_data)
         if self.cipher:
             data = self.cipher.decrypt(encrypted_data)
             if self.verbose:
@@ -99,18 +97,15 @@ class StealthConn(object):
                 print("Original data: {}".format(data))
         else:
             data = encrypted_data
-        print("Decrypted Data:",data)
+        if self.verbose:
+            print("Decrypted Data:",data)
 
 	#strip off the HMAC and verify the message
         if self.shared_hash != None:
             h = HMAC.new(self.shared_hash)
-            print("Data:",data)
             hmac = data[:h.digest_size*2]
-            print("HMAC:",hmac)
             data = data[h.digest_size*2:]
-            print("Data",data)
             h.update(data)
-            print(h.hexdigest(),hmac)
             if h.hexdigest() != str(hmac, 'ascii'):
                 print("Returning none...bad message?")
                 return None	#Bad message - return none?        
