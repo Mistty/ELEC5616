@@ -8,6 +8,9 @@ from lib.helpers import read_hex
 
 from dh import create_dh_key, calculate_dh_secret
 
+timestamp_format = "%Y-%m-%d %H:%M:%S"
+timestamp_format_len = 19
+
 class StealthConn(object):
     def __init__(self, conn, client=False, server=False, verbose=False):
         self.conn = conn
@@ -63,7 +66,9 @@ class StealthConn(object):
             print("Data is now encoded with HMAC",mac_data,type(mac_data))
         
         # Add a timestamp to the message
-        
+        current_time = datetime.datetime.now()
+        timestr = datetime.datetime.strftime(current_time, timestamp_format)
+        mac_data = bytes(timestr, 'ascii') + mac_data
 			
         if self.cipher:
             encrypted_data = self.cipher.encrypt(mac_data)
@@ -108,7 +113,10 @@ class StealthConn(object):
         if self.verbose:
             print("Decrypted Data:",data)
 
-        #strip off the HMAC and verify the message
+        #strip off the HMAC and timestamp and verify the message
+        tstamp = str(data[:timestamp_format_len], 'ascii')
+        data = data[timestamp_format_len:]
+        
         if self.shared_hash != None:
             h = HMAC.new(self.shared_hash)
             hmac = data[:h.digest_size*2]
@@ -124,8 +132,15 @@ class StealthConn(object):
         elif self.verbose:
             print("Shared hash is null")
         
-        
+        msg_time = datetime.datetime.strptime(tstamp, timestamp_format);
+        if self.last_message_time != None:
+            if msg_time <= self.last_message_time:
+                if self.verbose:
+                    print("Bad timestamp")
+                    print("timestamp:",tstamp)
+                raise RuntimeError("Bad timestamp: message not newer than last recieved one")
 
+        self.last_message_time = msg_time
                  
         return data
 
