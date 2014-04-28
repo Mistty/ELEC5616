@@ -1,4 +1,5 @@
 import struct
+import datetime
 
 from Crypto import Random
 from Crypto.Hash import HMAC
@@ -16,6 +17,7 @@ class StealthConn(object):
         self.verbose = verbose
         self.shared_hash = None
         self.initiate_session()
+        self.last_message_time = None
 
     def initiate_session(self):
         # Perform the initial connection handshake for agreeing on a shared secret
@@ -119,6 +121,8 @@ class StealthConn(object):
                     print("Returning none...bad message?")
         elif self.verbose:
             print("Shared hash is null")
+        
+        
 
                  
         return data
