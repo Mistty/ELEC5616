@@ -49,6 +49,7 @@ class StealthConn(object):
         if self.shared_hash != None:
             h = HMAC.new(self.shared_hash)
             h.update(data)
+            h.update(b'aaaa')
             if self.verbose:
                 print("Hex digest is:",h.hexdigest())
             mac_data = h.hexdigest() + data.decode("ascii")
@@ -82,37 +83,38 @@ class StealthConn(object):
 
 
     def recv(self):
-        # Decode the data's length from an unsigned two byte int ('H')
-        pkt_len_packed = self.conn.recv(struct.calcsize('H'))
-        unpacked_contents = struct.unpack('H', pkt_len_packed)
-        pkt_len = unpacked_contents[0]
-        if self.verbose:
-            print("Packet length is",pkt_len)
-
-        encrypted_data = self.conn.recv(pkt_len)
-        if self.verbose:
-            print("Received Encrypted Data:",encrypted_data)
-        if self.cipher:
-            data = self.cipher.decrypt(encrypted_data)
+        while True:
+			# Decode the data's length from an unsigned two byte int ('H')
+            pkt_len_packed = self.conn.recv(struct.calcsize('H'))
+            unpacked_contents = struct.unpack('H', pkt_len_packed)
+            pkt_len = unpacked_contents[0]
             if self.verbose:
-                print("Receiving packet of length {}".format(pkt_len))
-                print("Encrypted data: {}".format(repr(encrypted_data)))
-                print("Original data: {}".format(data))
-        else:
-            data = encrypted_data
-        if self.verbose:
-            print("Decrypted Data:",data)
+                print("Packet length is",pkt_len)
 
-	#strip off the HMAC and verify the message
-        if self.shared_hash != None:
-            h = HMAC.new(self.shared_hash)
-            hmac = data[:h.digest_size*2]
-            data = data[h.digest_size*2:]
-            h.update(data)
-            if h.hexdigest() != str(hmac, 'ascii'):
-                print("Returning none...bad message?")
-                return None	#Bad message - return none?        
-        return data
+            encrypted_data = self.conn.recv(pkt_len)
+            if self.verbose:
+                print("Received Encrypted Data:",encrypted_data)
+            if self.cipher:
+                data = self.cipher.decrypt(encrypted_data)
+                if self.verbose:
+                    print("Receiving packet of length {}".format(pkt_len))
+                    print("Encrypted data: {}".format(repr(encrypted_data)))
+                    print("Original data: {}".format(data))
+            else:
+                data = encrypted_data
+            if self.verbose:
+                print("Decrypted Data:",data)
+
+            #strip off the HMAC and verify the message
+            if self.shared_hash != None:
+                h = HMAC.new(self.shared_hash)
+                hmac = data[:h.digest_size*2]
+                data = data[h.digest_size*2:]
+                h.update(data)
+                if h.hexdigest() != str(hmac, 'ascii'):
+                    print("Returning none...bad message?")
+                    continue;     
+            return data
 
     def close(self):
         self.conn.close()
