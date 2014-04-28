@@ -8,6 +8,7 @@ from lib.files import download_from_pastebot, filestore, p2p_upload_file, save_v
 
 def p2p_upload(fn):
     sconn = find_bot()
+    #sconn.verbose=True
     sconn.send(bytes("FILE", "ascii"))
     p2p_upload_file(sconn, fn)
 
@@ -15,7 +16,7 @@ def p2p_echo():
     try:
         sconn = find_bot()
         # Set verbose to true so we can view the encoded packets
-        sconn.verbose = True
+        #sconn.verbose = True
         sconn.send(bytes("ECHO", "ascii"))
         while 1:
             # Read a message and send it to the other bot

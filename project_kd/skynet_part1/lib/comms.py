@@ -45,7 +45,7 @@ class StealthConn(object):
         if self.verbose:
             print("Function 'send' received data",data,type(data))
 	
-	#Create a HMAC and prepend it to the message
+        #Create a HMAC and prepend it to the message
         if self.shared_hash != None:
             h = HMAC.new(self.shared_hash)
             h.update(data)
@@ -56,6 +56,9 @@ class StealthConn(object):
             mac_data = data
         if self.verbose:
             print("Data is now encoded with HMAC",mac_data,type(mac_data))
+        
+        # Add a timestamp to the message
+        
 			
         if self.cipher:
             encrypted_data = self.cipher.encrypt(mac_data)
