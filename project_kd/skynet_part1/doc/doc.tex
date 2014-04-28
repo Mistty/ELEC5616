@@ -1,5 +1,5 @@
 \title{Project 1 :: Defeating SkyNet \\ (Security Essentials)}
-\author{Dean Pisani \\ Kristy Hughes}
+\author{Dean Pisani 311210775 \\ Kristy Hughes}
 
 \documentclass[12pt,a4paper]{article}
 \usepackage[top=1in,bottom=1.4in, left=0.8in, right=0.8in]{geometry}
@@ -92,14 +92,15 @@ def create_dh_key():
 \end{center}
 
 \section{Cypher}
-We chose AES as our cypher because although TDES is cryptographically secure, it is not as fast or as secure as AES. AES is now industry standard thus we thought it best to use it. 
+We chose AES as our cypher because although TDES is cryptographically secure, it is not as fast or as secure as AES. AES is now industry standard thus we thought it best to use it. Additionally AES supports key sizes that match the output of our Diffie-Hellman exchange. 
 \section{Tampering Prevention}
-To prevent tampering of the message we use data origin authentication. To do this, we implement HMAC which hashes the message using the sender's MAC address as the key. Since a MAC address is unique to the user the attacker is unable to replicate this or tamper with the hashed message.
+To prevent tampering of the message we use data origin authentication. To do this, we implement HMAC-MD5 which hashes the message using the previously establised shared secret as a key. Since this key is known only to the original sender and the recipient an attacker is unable to replicate this or tamper with the hashed message. Although MD5 has known issues, it has been proven that these problems do not carry on in their use in a HMAC.
 
 \section{Replay Attack Prevention}
 Replay attacks occur when an attacker takes a previously sent encrypted message and sends it to the server again. To prevent this, the user appends a timestamp at the beginning of the message and when the server decrypts it, it checks that the timestamp of the current message is later than the timestamp of the previous message recieved.
 
 \section{Peer to Peer file transfers}
+Peer-to-peer file transfers allow botnets to function without relying on a central server to be always operational. Such a transfer mechanism has the advantage that there is no single point of failure, and similarly no single point which would present itself as a target for attackers. Additionally it would also allow a bot net to function even when the central server is inaccessible or blocked. However, a central web server provides a source of authority for all bots in our network, and there is no possibility of outdated files or instructions being distributed across the network like there can be for a peer-to-peer system.
 
 \section{In the Real World}
 
