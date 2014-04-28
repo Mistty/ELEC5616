@@ -38,7 +38,8 @@ class StealthConn(object):
         self.cipher = AES.new(self.shared_hash, AES.MODE_CFB, iv)
 
     def send(self, data):
-		#Create a HMAC and prepend it to the message
+        data=str(data)
+	#Create a HMAC and prepend it to the message
         if self.shared_hash != None:
             h = HMAC.new(self.shared_hash)
             h.update(data)
@@ -48,12 +49,14 @@ class StealthConn(object):
 			
         if self.cipher:
             encrypted_data = self.cipher.encrypt(mac_data)
+            print("Encrypted data is type",type(encrypted_data))
             if self.verbose:
                 print("Original data: {}".format(data))
                 print("Encrypted data: {}".format(repr(encrypted_data)))
                 print("Sending packet of length {}".format(len(encrypted_data)))
         else:
-            encrypted_data = data
+            encrypted_data = bytes(data,"ascii")
+            print("Ecrypted data is just the same as data",type(encrypted_data))
 
         # Encode the data's length into an unsigned two byte int ('H')
         pkt_len = struct.pack('H', len(encrypted_data))
