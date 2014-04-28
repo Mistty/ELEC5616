@@ -92,7 +92,7 @@ def create_dh_key():
 \end{center}
 
 \section{Cypher}
-We chose AES as our cypher because although TDES is cryptographically secure, it is not as fast or as secure as AES. AES is now industry standard thus we thought it best to use it. Additionally AES supports key sizes that match the output of our Diffie-Hellman exchange. 
+We chose AES as our cypher because although TDES is cryptographically secure, it is not as fast or as secure as AES. AES is now industry standard thus we thought it best to use it. Additionally AES supports key sizes that match the output of our Diffie-Hellman exchange. We used the CBC mode of operation, which is also a commonly used standard.
 \section{Tampering Prevention}
 To prevent tampering of the message we use data origin authentication. To do this, we implement HMAC-MD5 which hashes the message using the previously establised shared secret as a key. Since this key is known only to the original sender and the recipient an attacker is unable to replicate this or tamper with the hashed message. Although MD5 has known issues, it has been proven that these problems do not carry on in their use in a HMAC.
 
