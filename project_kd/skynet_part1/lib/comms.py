@@ -52,7 +52,9 @@ class StealthConn(object):
             #h.update(b'aaaa')
             if self.verbose:
                 print("Hex digest is:",h.hexdigest())
-            mac_data = h.hexdigest()[:-1] + "a" + data.decode("ascii")
+            mac_data = h.hexdigest() + data.decode("ascii")
+            # Use the following code if you want to test what happens when the HMAC is bad
+            #mac_data = h.hexdigest()[:-1] + "a"  + data.decode("ascii")
         else:
             mac_data = data
         if self.verbose:
@@ -116,7 +118,7 @@ class StealthConn(object):
                     print("HMAC from message:",str(hmac,'ascii'))
                     print("HMAC from digest:",h.hexdigest())
                     print("Not verifying message:",data)
-                    print("Returning none...bad message?")
+                raise RuntimeError("Bad message: HMAC does not match")
         elif self.verbose:
             print("Shared hash is null")
 
