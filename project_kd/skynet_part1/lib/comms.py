@@ -23,11 +23,15 @@ class StealthConn(object):
         ### TODO: Your code here!
         # This can be broken into code run just on the server or just on the client
         if self.server or self.client:
+            print("about to initiate")
             my_public_key, my_private_key = create_dh_key()
+            print("public key",my_public_key,"private key",my_private_key)
             # Send them our public key
             self.send(bytes(str(my_public_key), "ascii"))
+            print("public key sent")
             # Receive their public key
             their_public_key = int(self.recv())
+            print("public key recieved")
             # Obtain our shared secret
             self.shared_hash = calculate_dh_secret(their_public_key, my_private_key)
             print("Shared hash: {}".format(self.shared_hash))
