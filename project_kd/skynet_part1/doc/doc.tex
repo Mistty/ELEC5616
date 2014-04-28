@@ -121,7 +121,7 @@ encrypted_data = self.cipher.encrypt(data)
 \end{python}\end{center}
 
 \section{Integrity}
-To prevent tampering of the message we use data origin authentication. To do this, we implement HMAC-MD5 which hashes the message using the previously established shared secret as a key. Since this key is known only to the original sender and the recipient an attacker is unable to replicate this or tamper with the hashed message. Although MD5 has known issues, it has been proven that these problems do not carry on in their use in a HMAC.
+To prevent tampering of the message we use data origin authentication. To do this, we implement HMAC-MD5 which hashes the message using the previously established shared secret as a key. Since this key is known only to the original sender and the recipient an attacker is unable to replicate this or tamper with the hashed message. Although MD5 has known issues, it is known that these problems do not carry on in their use in a HMAC. These authentication codes are attached to messages sent across the network, which can be used to verify the authenticity of messages recieved by re-computing the HMAC and comparing it to the one sent across.
 
 \section{Replay Attack Prevention}
 Replay attacks occur when an attacker takes a previously sent encrypted message and sends it to the server again. To prevent this, the user appends a timestamp at the beginning of the message and when the server decrypts it, it checks that the timestamp of the current message is later than the timestamp of the previous message recieved.
