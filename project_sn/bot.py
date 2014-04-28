@@ -59,11 +59,13 @@ if __name__ == "__main__":
             if len(cmd) > 1:
                 if cmd[1].lower() == "echo":
                     p2p_echo()
-                if cmd[1].lower() == "upload":
+                elif cmd[1].lower() == "upload":
                     if len(cmd) == 3:
                         p2p_upload(cmd[2])
                     else:
                         print("Format is 'p2p upload <filename>'")
+                else:
+                    print("The p2p command requires either 'echo' or 'upload' after it")
             else:
                 print("The p2p command requires either 'echo' or 'upload' after it")
         # Download a file (update or data) from pastebot.net

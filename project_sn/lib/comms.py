@@ -89,6 +89,8 @@ class StealthConn(object):
         print("Authentication Successful")
 
     def send(self, data):
+        if not isinstance(data, bytes):
+            data = data.encode("ascii")
         if self.cipher:
             shaInt = read_hex(SHA256.new(data).hexdigest()).to_bytes(32, 'big')[:self.checkSize]
             data = data + shaInt
