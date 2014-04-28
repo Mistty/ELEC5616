@@ -55,7 +55,6 @@ class StealthConn(object):
         if self.shared_hash != None:
             h = HMAC.new(self.shared_hash)
             h.update(data)
-            #h.update(b'aaaa')
             if self.verbose:
                 print("Hex digest is:",h.hexdigest())
             mac_data = bytes(h.hexdigest() + data.decode("ascii"),"ascii")
@@ -80,7 +79,7 @@ class StealthConn(object):
                 print("Encrypted data: {}".format(repr(encrypted_data)))
                 print("Sending packet of length {}".format(len(encrypted_data)))
         else:
-            encrypted_data = mac_data #bytes(mac_data,"ascii")
+            encrypted_data = mac_data
             if self.verbose:
                 print("Ecrypted data is just the same as data",type(encrypted_data))
 
@@ -117,9 +116,12 @@ class StealthConn(object):
             print("Decrypted Data:",data)
 
         #strip off the HMAC and timestamp and verify the message
+        
+        #take off the timestamp first
         tstamp = str(data[:timestamp_format_len], 'ascii')
         data = data[timestamp_format_len:]
         
+        #get the HMAC, if we're using one
         if self.shared_hash != None:
             h = HMAC.new(self.shared_hash)
             hmac = data[:h.digest_size*2]
@@ -135,6 +137,7 @@ class StealthConn(object):
         elif self.verbose:
             print("Shared hash is null")
         
+        #we'll only accept messages that have timstamps after the one we last recieved
         msg_time = datetime.datetime.strptime(tstamp, timestamp_format);
         if self.verbose:
             print(msg_time)
