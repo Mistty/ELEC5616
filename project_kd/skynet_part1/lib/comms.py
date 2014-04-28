@@ -105,13 +105,13 @@ class StealthConn(object):
         if self.shared_hash != None:
             h = HMAC.new(self.shared_hash)
             print("Data:",data)
-            hmac = data[:h.digest_size]
+            hmac = data[:h.digest_size*2]
             print("HMAC:",hmac)
-            data = data[h.digest_size:]
+            data = data[h.digest_size*2:]
             print("Data",data)
             h.update(data)
             print(h.hexdigest(),hmac)
-            if h.hexdigest() != hmac:
+            if h.hexdigest() != str(hmac, 'ascii'):
                 print("Returning none...bad message?")
                 return None	#Bad message - return none?        
         return data
