@@ -8,8 +8,8 @@ from lib.helpers import read_hex
 
 from dh import create_dh_key, calculate_dh_secret
 
-timestamp_format = "%Y-%m-%d %H:%M:%S"
-timestamp_format_len = 19
+timestamp_format = "%Y-%m-%d %H:%M:%S:%f"
+timestamp_format_len = 26
 
 class StealthConn(object):
     def __init__(self, conn, client=False, server=False, verbose=False):
