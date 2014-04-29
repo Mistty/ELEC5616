@@ -18,7 +18,7 @@ class StealthConn(object):
         self.server = server
         self.verbose = verbose
         self.rsaKey = rsaKey
-        self.checkSize = 4
+        self.checkSize = 8
         self.initiate_session()
 
     def initiate_session(self):
