@@ -9,6 +9,7 @@ from lib.helpers import read_hex
 
 from dh import create_dh_key, calculate_dh_secret
 
+# Format the time stamp to the milliseconds for preventing replay attacks
 timestamp_format = "%Y-%m-%d %H:%M:%S:%f"
 timestamp_format_len = 26
 
@@ -25,13 +26,9 @@ class StealthConn(object):
 
     def initiate_session(self):
         # Perform the initial connection handshake for agreeing on a shared secret
-
-        ### TODO: Your code here!
-        # This can be broken into code run just on the server or just on the client
         if self.server or self.client:
             my_public_key, my_private_key = create_dh_key()
             # Send them our public key
-            #self.send(str(bytes(str(my_public_key), "ascii")))
             self.send(str(my_public_key))
             # Receive their public key
             their_public_key = int(self.recv())
@@ -42,10 +39,11 @@ class StealthConn(object):
             self.shared_hash = bytes.fromhex(self.shared_hash)
 
         # Use AES in CFB mode for encryption
-        iv = self.shared_hash[:16]
-        self.cipher = AES.new(self.shared_hash, AES.MODE_CFB, iv)
+        iv = self.shared_hash[:16] # set the initialization vector
+        self.cipher = AES.new(self.shared_hash, AES.MODE_CFB, iv) # create cipher object
 
     def send(self, data):
+        # Sort out encoding problems
         if type(data) != type(b""):
             data = bytes(data,'ascii')
         if self.verbose:
@@ -59,7 +57,7 @@ class StealthConn(object):
                 print("Hex digest is:",h.hexdigest())
             mac_data = bytes(h.hexdigest() + data.decode("ascii"),"ascii")
             # Use the following code if you want to test what happens when the HMAC is bad
-            #mac_data = h.hexdigest()[:-1] + "a"  + data.decode("ascii")
+            #mac_data = h.hexdigest()[:-1] + "a"  + data.decode("ascii") # replace a random character in the digest
         else:
             mac_data = data
         if self.verbose:
@@ -68,12 +66,12 @@ class StealthConn(object):
         # Add a timestamp to the message
         current_time = datetime.datetime.now()
         # Use the following code to test if it works: subtract some time from now
-        #current_time = self.last_message_time - datetime.timedelta(1,0)
-        timestr = datetime.datetime.strftime(current_time, timestamp_format)
-        mac_data = bytes(timestr, 'ascii') + mac_data
+        #current_time = self.last_message_time - datetime.timedelta(1,0) # Take away a day from the last recieved message
+        timestr = datetime.datetime.strftime(current_time, timestamp_format) #format the timestamp
+        mac_data = bytes(timestr, 'ascii') + mac_data # prepend it to the message
 			
         if self.cipher:
-            encrypted_data = self.cipher.encrypt(mac_data)
+            encrypted_data = self.cipher.encrypt(mac_data) #Encrypt the message
             if self.verbose:
                 print("Original data: {}".format(data))
                 print("Encrypted data: {}".format(repr(encrypted_data)))
@@ -101,11 +99,11 @@ class StealthConn(object):
         if self.verbose:
             print("Packet length is",pkt_len)
 
-        encrypted_data = self.conn.recv(pkt_len)
+        encrypted_data = self.conn.recv(pkt_len) # Recieve the message
         if self.verbose:
             print("Received Encrypted Data:",encrypted_data)
         if self.cipher:
-            data = self.cipher.decrypt(encrypted_data)
+            data = self.cipher.decrypt(encrypted_data) # Decrypt the message
             if self.verbose:
                 print("Receiving packet of length {}".format(pkt_len))
                 print("Encrypted data: {}".format(repr(encrypted_data)))
@@ -124,10 +122,10 @@ class StealthConn(object):
         #get the HMAC, if we're using one
         if self.shared_hash != None:
             h = HMAC.new(self.shared_hash)
-            hmac = data[:h.digest_size*2]
-            data = data[h.digest_size*2:]
+            hmac = data[:h.digest_size*2] #Get the HMAC part of the message
+            data = data[h.digest_size*2:] # Get the data part of the message
             h.update(data)
-            if h.hexdigest() != str(hmac, 'ascii'):
+            if h.hexdigest() != str(hmac, 'ascii'): #HMAC is not right, so raise an error
                 if self.verbose:
                     print("Bad message")
                     print("HMAC from message:",str(hmac,'ascii'))
@@ -141,13 +139,13 @@ class StealthConn(object):
         msg_time = datetime.datetime.strptime(tstamp, timestamp_format);
         if self.verbose:
             print(msg_time)
-        if msg_time <= self.last_message_time:
+        if msg_time <= self.last_message_time: #If the timestamp is not newer, then raise an error
             if self.verbose:
                 print("Bad timestamp")
                 print("timestamp:",tstamp)
             raise RuntimeError("Bad timestamp: message not newer than last recieved one")
 
-        self.last_message_time = msg_time
+        self.last_message_time = msg_time # Update message time
                  
         return data
 
