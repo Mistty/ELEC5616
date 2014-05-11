@@ -122,11 +122,12 @@ iv = self.shared_hash[:16]
 self.cipher = AES.new(self.shared_hash, AES.MODE_CFB, iv)
 \end{python}
 \end{center}
-And this is how data was encrypted using the cipher:
+And this is how data was encrypted/decrypted using the cipher:
 \begin{center}
 \vspace{-2ex}
 \begin{python}
 encrypted_data = self.cipher.encrypt(data)
+data = self.cipher.decrypt(encrypted_data)
 \end{python}\end{center}
 
 \section{Integrity}
