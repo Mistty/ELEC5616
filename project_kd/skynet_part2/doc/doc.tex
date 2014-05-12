@@ -66,7 +66,7 @@ emphstyle={\color{self}\slshape},
 \small
 \setlength{\parindent}{0pt}
 
-\section{introduction to RSA}
+\section{Introduction to RSA}
 
 \section{Authentication}
 \emph{DONE}: How do you ensure the only one who can send updates to SkyNet is the botnet master?
@@ -76,7 +76,24 @@ Updates made to pastebot.net need to be signed by the master for them to be cons
 \section{Confidentiality}
 \emph{TODO}: How do you protect the valuable information to ensure it can only  be read by the botnet master? Remember that anyone can read the  information uploaded onto pastebot.net.
 
-Although information uploaded to pastebot.net by bots is in plaintext, valuables uploaded by the botnet master are encrypted using RSA. Thus, only somone in possession of the botnet master's RSA private key can decrypt these valuable documents
+When bot's upload files to pastebot.net, they are encrypted using RSA. This takes the botnet master's public key. Thus, only somone in possession of the botnet master's RSA private key can decrypt these valuable documents
+
+\begin{center}
+\vspace{-2ex}
+\begin{python}
+def encrypt_for_master(data):
+    # TODO: what does this line of code do?
+    h=SHA.new(data)
+    # Read in the master'spublic key
+    key = RSA.importKey(open(os.path.join("pastebot.net", "master_rsa.pub")).read())
+    # Create a cypher object with the key
+    cipher = PKCS1_v1_5.new(key)
+    # Encrypt the valuable data
+    ciphertext = cipher.encrypt(data+h.digest())
+    # Return encrypted data
+    return ciphertext
+\end{python}
+\end{center}
 
 \section{Integrity}
 
