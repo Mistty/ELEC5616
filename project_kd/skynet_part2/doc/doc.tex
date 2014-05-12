@@ -1,0 +1,140 @@
+\title{\vspace{-5ex} \large Project 1 :: Defeating SkyNet \\ \large (Security Essentials)\vspace{-2ex}}
+\author{\large Dean Pisani 311210775 \\ \large Kristy Hughes 310186293\vspace{-2ex}}
+\date{}
+
+\documentclass[9pt,a4paper]{article}
+\usepackage[top=0.6in,bottom=0.6in, left=0.6in, right=0.6in]{geometry}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage{sectsty}
+
+\sectionfont{\fontsize{11}{9}\selectfont}
+
+% Set up python syntax highlighting
+\definecolor{Code}{rgb}{0,0,0}
+\definecolor{Decorators}{rgb}{0.5,0.5,0.5}
+\definecolor{Numbers}{rgb}{0.5,0,0}
+\definecolor{MatchingBrackets}{rgb}{0.25,0.5,0.5}
+\definecolor{Keywords}{rgb}{0,0,1}
+\definecolor{self}{rgb}{0,0,0}
+\definecolor{Strings}{rgb}{0,0.63,0}
+\definecolor{Comments}{rgb}{0,0.63,0.2}
+\definecolor{Backquotes}{rgb}{0,0,0}
+\definecolor{Classname}{rgb}{0,0,0}
+\definecolor{FunctionName}{rgb}{0,0,0}
+\definecolor{Operators}{rgb}{0,0,0}
+\definecolor{Background}{rgb}{0.98,0.98,0.98}
+
+\lstnewenvironment{python}[1][]{
+\lstset{
+numbers=left,
+numberstyle=\footnotesize,
+numbersep=1em,
+xleftmargin=1em,
+framextopmargin=2em,
+framexbottommargin=2em,
+showspaces=false,
+showtabs=false,
+showstringspaces=false,
+frame=l,
+tabsize=4,
+% Basic
+basicstyle=\ttfamily\small\setstretch{1},
+backgroundcolor=\color{Background},
+language=Python,
+% Comments
+commentstyle=\color{Comments}\slshape,
+% Strings
+stringstyle=\color{Strings},
+morecomment=[s][\color{Strings}]{"""}{"""},
+morecomment=[s][\color{Strings}]{'''}{'''},
+% keywords
+morekeywords={import,from,class,def,for,while,if,is,in,elif,else,not,and,or,print,break,continue,return,True,False,None,access,as,,del,except,exec,finally,global,import,lambda,pass,print,raise,try,assert},
+keywordstyle={\color{Keywords}\bfseries},
+% additional keywords
+morekeywords={[2]@invariant},
+keywordstyle={[2]\color{Decorators}\slshape},
+emph={self},
+emphstyle={\color{self}\slshape},
+%
+}}{}
+
+\begin{document}
+\maketitle
+\small
+\setlength{\parindent}{0pt}
+
+\section{Securely Updating Skynet}
+\vspace{-2ex}
+TODO: Info about this section
+
+How do you ensure the only one who can send updates to SkyNet is the botnet master?
+
+How do you ensure the botnet updates signed by the botnet master cannot be forged or modied?
+
+\begin{center}
+\vspace{-2ex}
+\begin{python}
+# TODO: code here
+\end{python}
+\end{center}
+
+\section{Securely Transferring Valuable Data to the Botnet Master}
+\vspace{-2ex}
+TODO: This entire section.....
+
+How do you protect the valuable information to ensure it can only be read by the botnet master? Remember that anyone can read the information uploaded onto pastebot.net.
+
+
+\begin{center}
+\vspace{-2ex}
+\begin{python}
+# Some code here. Maybe.
+\end{python}
+\end{center}
+
+\section{Security}
+\vspace{-2ex}
+TODO: The other questions that haven't been answered
+
+
+How do you ensure the botnet updates signed by the botnet master cannot be forged or modifed?
+
+Give an indication of how distributedcult it would be for an adversary to take control of SkyNet when your protections are used.
+
+\begin{center}
+\vspace{-2ex}
+\begin{python}
+# TODO: Integrity code here
+\end{python}\end{center}
+
+\section{Preventing Replay}
+\vspace{-2ex}
+TODO: Preventing replay stuff here
+
+\begin{center}
+\vspace{-2ex}
+\begin{python}
+# TODO: Preventing replay code here
+\end{python}\end{center}
+
+
+\section{Peer to Peer file transfers}
+\vspace{-2ex}
+Peer-to-peer file transfers allow botnets to function without relying on a central server to be always operational. Such a transfer mechanism has the advantage that there is no single point of failure, and similarly no single point which would present itself as a target for attackers. Additionally it would also allow a bot net to function even when the central server is inaccessible or blocked. However, a central web server provides a source of authority for all bots in our network, and there is no possibility of outdated files or instructions being distributed across the network like there can be for a peer-to-peer system.
+
+\section{In the Real World}
+\vspace{-2ex}
+In the real world, bot nets could be used to:
+\begin{itemize}
+\item Distributed denial of service attacks (dDoS) by asking all computers connected to the botnet to ping a server.
+\item Sending spam emails
+\item Distributing malware through p2p transfers
+\item Brute-forcing by asking all computers to conduct a brute force attack on with different starting points
+\end{itemize}
+
+There are two methods for detecting a bot net: static analysis and behavioral analysis. Static analysis involves checking items against a known list of malicious items. It is difficult to keep this list up to date, making this method not very effective. Behavioural analysis involves monitoring communications in a network for behaviour similar to a bot net. This includes  monitoring network for unusual traffic (such as at unusual times, of unusual volume, protocols such as IRC, SMTP, UDP) and monitoring computers to see if processes are doing more work than expected. However the problem with this method is that it may be legitimate for a computer to be exhibiting these behaviors.
+
+\end{document}
