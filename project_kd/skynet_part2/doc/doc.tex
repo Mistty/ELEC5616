@@ -123,24 +123,14 @@ def decrypt_valuables(f):
 \emph{TODO}: How do you ensure the botnet updates signed by the botnet master cannot be forged or modifed?
 
 \section{Breaking into Skynet}
-\emph{TODO}: If SkyNet's botnet code is dismantled and/or the source code for it stolen, does your scheme become less secure?
+\emph{If SkyNet's botnet code is dismantled and/or the source code for it stolen, does your scheme become less secure?}
 If one of the bots were to be infiltrated, the attacker would not have access to any of the master's private data, since the bots only possess the master's public key. Thus, it would not give the attacker any means to disrupt the rest of the network, since they still cannot sign messages. They also cannot access any of the data uploaded by the other bots, since that also requires the private key. However they would have control over that particular bot, and could use it for their own means. Potentially they could use the public key to create fake information that will be still accepted by the master, giving them other means to attack. 
 
-\emph{TODO}: Give an indication of how dismantledcult it would be for an adversary to take control of SkyNet when your protections are used.
+\emph{Give an indication of how dismantledcult it would be for an adversary to take control of SkyNet when your protections are used.}
 
 It would be very difficult for an adversary to take control of Skynet. Each individual bot is not particularly secure, however it is the botnet master that actually controls and has access to valuable information.
 An infiltrated bot by itself would only be able to add to the valuables owned by the botnet by uploading encrypted data it discovers. It would not be able to obtain valuables mined by any other bot, since each bot encrypts it with the master's public key before uploading. Since the encrypted files require the botnet master's private key to decrypt, the infected bot would not be able to infiltrate further or gather useful information.
 So the aim of the infiltrator would be to  take control of the botnet master. And this would be difficult, since there is no indication of which bot is actually the master in a huge peer to peer networkSo the problem of infiltration is reduced to the problem of obtaining the botnet master's private key. Thus it is very important for the botnet master to keep the private key in a secret place away from the reach of any bot and possibly encrypted using a password.
-
-\begin{center}
-\vspace{-2ex}
-\begin{python}
-# TODO
-\end{python}
-\end{center}
-
-
-
 
 
 \end{document}
