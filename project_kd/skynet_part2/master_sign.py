@@ -6,13 +6,14 @@ from Crypto.PublicKey import RSA
 def sign_file(f):    
     # Read in the private key
     key = RSA.importKey(open(os.path.join("TOP_SECRET_KEYS", "master_rsa")).read())
+
     # sign using the RSASSA-PSS scheme
     h = SHA.new()
     h.update(f)
     signer = PKCS1_PSS.new(key)
-    signature = PKCS1_PSS.sign(key)
+    signature = signer.sign(h)
     
-    return bytes(signature + '\n', "ascii") + f
+    return signature + bytes('\n', "ascii") + f
 
 
 if __name__ == "__main__":
