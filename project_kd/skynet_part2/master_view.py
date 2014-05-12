@@ -5,17 +5,20 @@ from Crypto.Hash import SHA
 from Crypto import Random
 
 def decrypt_valuables(f):
-    # TODO: For Part 2, you'll need to decrypt the contents of this file
-    # The existing scheme uploads in plaintext
-    # As such, we just convert it back to ASCII and print it out
+    # Get the private key and get associated hash digest size
     key = RSA.importKey(open('TOP_SECRET_KEYS/master_rsa').read())
     dsize = SHA.digest_size
     sentinel = Random.new().read(15+dsize)
+    # Make a cipher object to decrypt with
     cipher = PKCS1_v1_5.new(key)
-    #decoded_text = str(f, 'ascii')
+    # Decode the text
     decoded_text = cipher.decrypt(f, sentinel)
+    # Grab the digest and if the digest is right, print the decrypted data
     digest = SHA.new(decoded_text[:-dsize]).digest()
     if digest==decoded_text[-dsize:]:
+        # Remove the digest from the message
+        decoded_text=decoded_text[:-dsize]
+        decoded_text = str(decoded_text, 'ascii')
         print(decoded_text)
     else:
         print("Bad encryption")
