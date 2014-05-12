@@ -12,8 +12,7 @@ def sign_file(f):
     h.update(f)
     signer = PKCS1_PSS.new(key)
     signature = signer.sign(h)
-    
-    return signature + bytes('\n', "ascii") + f
+    return signature + f
 
 
 if __name__ == "__main__":
