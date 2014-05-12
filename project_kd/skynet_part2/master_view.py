@@ -6,7 +6,7 @@ from Crypto import Random
 
 def decrypt_valuables(f):
     # TODO: For Part 2, you'll need to decrypt the contents of this file
-   # The existing scheme uploads in plaintext
+    # The existing scheme uploads in plaintext
     # As such, we just convert it back to ASCII and print it out
     key = RSA.importKey(open('TOP_SECRET_KEYS/master_rsa').read())
     dsize = SHA.digest_size
