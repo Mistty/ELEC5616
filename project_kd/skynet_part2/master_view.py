@@ -1,15 +1,25 @@
 import os
-
+From Crypto.Hash import SHA
+from Crypto import Random
 
 def decrypt_valuables(f):
     # TODO: For Part 2, you'll need to decrypt the contents of this file
-    # The existing scheme uploads in plaintext
+   # The existing scheme uploads in plaintext
     # As such, we just convert it back to ASCII and print it out
-    decoded_text = str(f, 'ascii')
-    print(decoded_text)
+    key = RSA.importKey(open('TOP_SECRET_KEYS/master_rsa').read())
+    dsize = SHA.digest_size
+    sentinel = Random.new().read(15+dsize)
+    cipher = PKCS1_v1_5.new(key)
+    #decoded_text = str(f, 'ascii')
+    decoded_text = cipher.decrypt(ciphertext, sentinel)
+    digest = SHA.new(message[:-dsize]).digest()
+    if digest==message[-dsize:]:
+        print(decoded_text)
+    else:
+	print("Bad encryption")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     fn = input("Which file in pastebot.net does the botnet master want to view? ")
     if not os.path.exists(os.path.join("pastebot.net", fn)):
         print("The given file doesn't exist on pastebot.net")
