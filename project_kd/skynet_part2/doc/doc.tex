@@ -76,8 +76,9 @@ Updates made to pastebot.net need to be signed by the master for them to be cons
 \section{Confidentiality}
 \emph{TODO}: How do you protect the valuable information to ensure it can only  be read by the botnet master? Remember that anyone can read the  information uploaded onto pastebot.net.
 
-When bot's upload files to pastebot.net, they are encrypted using RSA. This takes the botnet master's public key. Thus, only somone in possession of the botnet master's RSA private key can decrypt these valuable documents
+When bot's upload files to pastebot.net, they are encrypted using RSA. This takes the botnet master's public key. Thus, only somone in possession of the botnet master's RSA private key can decrypt these valuable documents. With an asymmetric cipher like RSA, we can ensure that any valuable data cannot be read by anyone - including bots - since they do not know the master's private key.
 
+Here is the encryption code that any bot can perform using the master's public key
 \begin{center}
 \vspace{-2ex}
 \begin{python}
@@ -94,6 +95,28 @@ def encrypt_for_master(data):
     return ciphertext
 \end{python}
 \end{center}
+
+\begin{center}
+\vspace{-2ex}
+\begin{python}
+def decrypt_valuables(f):
+    # Read in the private key
+    key = RSA.importKey(open('TOP_SECRET_KEYS/master_rsa').read())
+    #TODO: what do these lines of code do?
+    dsize = SHA.digest_size
+    sentinel = Random.new().read(15+dsize)
+    # Create the cypher object with the private key
+    cipher = PKCS1_v1_5.new(key)
+    # Decode encrypted data
+    decoded_text = cipher.decrypt(f, sentinel)
+    digest = SHA.new(decoded_text[:-dsize]).digest()
+    if digest==decoded_text[-dsize:]:
+        print(decoded_text)
+    else:
+        print("Bad encryption")
+\end{python}
+\end{center}
+
 
 \section{Integrity}
 
