@@ -1,5 +1,7 @@
 import os
-From Crypto.Hash import SHA
+from Crypto.Cipher import PKCS1_v1_5
+from Crypto.PublicKey import RSA
+from Crypto.Hash import SHA
 from Crypto import Random
 
 def decrypt_valuables(f):
@@ -11,12 +13,12 @@ def decrypt_valuables(f):
     sentinel = Random.new().read(15+dsize)
     cipher = PKCS1_v1_5.new(key)
     #decoded_text = str(f, 'ascii')
-    decoded_text = cipher.decrypt(ciphertext, sentinel)
-    digest = SHA.new(message[:-dsize]).digest()
-    if digest==message[-dsize:]:
+    decoded_text = cipher.decrypt(f, sentinel)
+    digest = SHA.new(decoded_text[:-dsize]).digest()
+    if digest==decoded_text[-dsize:]:
         print(decoded_text)
     else:
-	print("Bad encryption")
+        print("Bad encryption")
 
 
 if __name__ == "__main__": 
