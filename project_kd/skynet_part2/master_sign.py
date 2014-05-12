@@ -8,9 +8,11 @@ def sign_file(f):
     key = RSA.importKey(open(os.path.join("TOP_SECRET_KEYS", "master_rsa")).read())
 
     # sign using the RSASSA-PSS scheme
+    # use a SHA-1 hasher for use in the RSA signing object
     h = SHA.new()
     h.update(f)
     signer = PKCS1_PSS.new(key)
+    # create the signature and prepend it to the message
     signature = signer.sign(h)
     return signature + f
 
