@@ -12,13 +12,6 @@ def p2p_upload(fn):
     sconn = find_bot()
     #sconn.verbose=True
     sconn.send(bytes("FILE", "ascii"))
-    
-    # Encrypt with rsa
-    #h = SHA.new(fn)
-    #key=RSA.importKey(open(os.path.join("pastebot.net", "master_rsa.pub")).read())
-    #cipher = PKCS1_v1_5.new(key)
-    #ciphertext = cipher.encrypt(fn+h.digest())
-    
     p2p_upload_file(sconn,fn)
 
 def p2p_echo():

