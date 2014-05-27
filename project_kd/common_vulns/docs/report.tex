@@ -9,6 +9,7 @@
 \usepackage{setspace}
 \usepackage{amsmath}
 \usepackage{sectsty}
+\usepackage{graphicx}
 
 \sectionfont{\fontsize{11}{9}\selectfont}
 
@@ -98,29 +99,33 @@ scanf("%10s", h.name);
 \end{lstlisting}
 So that C knows how big the input string should be and ignores the rest of it.
 
-\item In this particular example they cannot because the code is not allowing or not allowing them into the system. If a buffer overflow is performed on a login program then this may allow them access to the system\\
-TODO: Is this right? Expand.
+\item TODO: Could this exploit be useful for more than just the game etc. (can you get a shell up from a buffer overflow? http://phrack.org/issues/49/14.html) See also 1.3 question 3. It is the same thing
 
 \end{enumerate}
 
 \subsection{iCubeKinect}
 \begin{enumerate}
-
+\item An asymmetric cipher is used because there is no secret channel that has to be set up, only exchanges of the public key. However, asymmetric ciphers are much slower than symmetric ciphers. A symmetric cipher could be used instead, with authentication and key exchange set up using an asymmetric cipher. This would mean that DVD's don't need to be encrypted with the bulky asymmetric cipher.
+\item The function used to compare cert\_hash and sig\_hash is strncmp, which returns 0 if the two strings are equal or if their first MD5\_LENGTH characters are equal. If one of the hash strings contains the NULL byte then strncmp will interpret this as the end of the string and return the result of the comparison so far. So instead of brute force looking for hash collisions using the entire hash, one can brute force only part of the hash and have a null byte early.
+\item This error can be fixed by first checking the length of cert\_hash and sig\_hash to check that they are not shorter than MD5\_LENGTH. If one of them is shorter than MD5\_length then something is wrong and RSA\_CERT\_BAD should be returned. This will work because the length function works by linearly searching though the string to find the first instance of the null byte
 \end{enumerate}
 
 
 \subsection{General Questions}
-
+\begin{enumerate}
+\item The GCC complier implements the ``Steack Guard'' security mechanism to prevent buffer overflows. The stack protector in GCC is off by default, so implementing a buffer overflow will return ``stack smashing detected'' from gcc's stack protector. In our case we would like to disable this so that we can demonstrate a buffer overflow.\\
+Canaries are known values put on the stack between a buffer and control data to monitor buffer overflows. This means that the canary will be the first data to be corrupted when a buffer overflow is executed so a program just has to verify if the canary data is valid to check if an overflow has occurred. Once the overflow is detected it can be handled accordingly, by invalidating the corrupted data etc.
+\item Java automatically checks the bounds on arrays which prevents any buffer overflow from occurring. This doesn't mean that savegame could not be exploited, however, as Java has it's own problems. But it does rule out the possibility of a buffer overflow.
+\item TODO: Can you get a shell using buffer overflows? (http://phrack.org/issues/49/14.html) See 1.1 question 3, it is the same thing. Something to do with JMP to jump to where shellcode is stored
+\end{enumerate}
 
 
 \section{SQL Exploits}
-
-\subsection{}
-
-
-\subsection{}
-
-
-\subsection{}
+\begin{enumerate}
+\item Type any value for the user name as no injection happens here. In the password field, type anything followed by `` ' OR 1=1/* ''. The apostrophe ends the password string, the OR 1=1 provides an alternative to having a correct user name password pair as it is always true. The /* begins multi-line comments so the rest of the query is ignored.\\
+\includegraphics{inject}
+\item
+\item
+\end{enumerate}
 
 \end{document}

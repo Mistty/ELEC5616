@@ -17,7 +17,10 @@ int main(int argc, const char *argv[])
     h.hp = 30;
     h.gold = 8;
 
+    //BROKEN:
     scanf("%s", h.name);
+    //FIX:
+    //scanf("%10s", h.name);
 
     printf("Name: %s\n", h.name);
     printf("HP: %d | Gold: %d\n", h.hp, h.gold);
