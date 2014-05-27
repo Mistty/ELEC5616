@@ -125,7 +125,7 @@ Canaries are known values put on the stack between a buffer and control data to 
 \item Type any value for the user name as no injection happens here. In the password field, type anything followed by `` ' OR 1=1/* ''. The apostrophe ends the password string, the OR 1=1 provides an alternative to having a correct user name password pair as it is always true. The /* begins multi-line comments so the rest of the query is ignored.\\
 \includegraphics{inject}
 \item
-\item SQL injections can be prevented by using prepared statements, which create a sort of templated query. Input values are substituted separately using a separate protocol which does not require escaping characters like in a raw SQL query. This makes it resiliant against malicious user input, since that input is never interpreted as part of the query and used only as a parameter.
+\item SQL injections can be prevented by using prepared statements, which create a sort of templated query. Input values are substituted separately using a separate protocol which does not require escaping characters like in a raw SQL query. This makes it resiliant against malicious user input, since that input is never interpreted as part of the query and used only as a parameter. SQL injections attacks remain pervasive because developers remain lax with their input sanitation. However methods to prevent malicious or malformed input from disrupting SQL queries do exist and when used provide a reliable safeguard against such injections.
 \end{enumerate}
 
 \end{document}
