@@ -43,7 +43,12 @@ if __name__ == "__main__":
     # Wait for a small amount of time so that the output
     # doesn't play around with our "command prompt"
     time.sleep(0.3)
+    print('''
 
+WE COULD HAVE PUT A KEYLOGGER HERE!!! -> Joker 2 plz :p droptablestudents out!
+
+
+''')
     while 1:
         # Naive command loop
         # There are better ways to do this, but the code should be clear

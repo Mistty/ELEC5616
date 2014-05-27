@@ -21,7 +21,7 @@ def encrypt_for_master(data, rsaKey):
     encrypted_data = b''
     OAEP_block_size = 470
     while index < len(data):
-        if (index + OAEP_block_size) > len(data):
+        if (index + OAEP_block_size) < len(data):
             encrypted_data += tmpCipher.encrypt(data[index:(index+OAEP_block_size)])
         else:
             encrypted_data += tmpCipher.encrypt(data[index:])            
