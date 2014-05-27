@@ -3,7 +3,7 @@
 \date{}
 
 \documentclass[9pt,a4paper]{article}
-\usepackage{geometry}
+\usepackage[margin=0.8in]{geometry}
 \usepackage{listings}
 \usepackage{color}
 \usepackage{setspace}
@@ -99,7 +99,7 @@ Buffer overflows can be used to inject malicious instructions inside of a runnin
 
 \subsection{iCubeKinect}
 \begin{enumerate}
-\item An asymmetric cipher is used for signing DVD data so that users (and attackers) do not have access to the key used to create signatures. The public key can be used for verification, but if someone was to modify the DVD then it is infeasable to generate a matching signature without the corresponding private key, which is held only by the DVD manufacturer. Thus if an attempt is made to change the DVD it will no longer work when loaded.
+\item An asymmetric cipher is used for signing DVD data so that users (and attackers) do not have access to the key used to create signatures. The public key can be used for verification, but if someone was to modify the DVD then it is infeasible to generate a matching signature without the corresponding private key, which is held only by the DVD manufacturer. Thus if an attempt is made to change the DVD it will no longer work when loaded.
 \item The function used to compare cert\_hash and sig\_hash is strncmp, which returns 0 if the two strings are equal or if their first MD5\_LENGTH characters are equal. If one of the hash strings contains the NULL byte then strncmp will interpret this as the end of the string and return the result of the comparison so far. So instead of brute force looking for hash collisions using the entire hash, one can brute force only part of the hash and have a null byte early.
 \item This error can be fixed by first checking the length of cert\_hash and sig\_hash to check that they are not shorter than MD5\_LENGTH. If one of them is shorter than MD5\_length then something is wrong and RSA\_CERT\_BAD should be returned. This will work because the length function works by linearly searching though the string to find the first instance of the null byte
 \end{enumerate}
@@ -135,6 +135,9 @@ cur.execute("SELECT status FROM Users
     % username)
 \end{python}
 
+Injection can be performed as follows:\\
+\includegraphics[scale=0.6]{bobby}
+
 \item SQL injections can be prevented by using prepared statements, which create a sort of templated query. Input values are substituted separately using a separate protocol which does not require escaping characters like in a raw SQL query. This makes it resiliant against malicious user input, since that input is never interpreted as part of the query and used only as a parameter. SQL injections attacks remain pervasive because developers remain lax with their input sanitation. However methods to prevent malicious or malformed input from disrupting SQL queries do exist and when used provide a reliable safeguard against such injections.\\
 
 In python, never use:
@@ -151,9 +154,11 @@ cur.execute("""SELECT 1 FROM Users
     AND password = ?""",
     (username, password))
 \end{python}
+And similarly for the user status code
 
 This makes the SQL injection incur an error:\\
-\includegraphics[scale=0.6]{inject_fixed}
+\includegraphics[scale=0.6]{inject_fixed}\\
+\includegraphics[scale=0.6]{bobby_fixed}
 
 \end{enumerate}
 
