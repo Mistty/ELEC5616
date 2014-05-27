@@ -32,7 +32,9 @@ password = raw_input(">>> Enter your password... ")
 #cur.execute("""SELECT 1 FROM Users
 #    WHERE username = '%s' AND password = '%s'""" % (username, password))
 # This is the fix to prevent SQL injection during login.
-cur.execute("""SELECT 1 FROM Users WHERE username = '%s' AND password = '%s'""" ,(username, password))
+cur.execute("""SELECT 1 FROM Users
+    WHERE username = ? AND password = ?""",(username, password))
+#cur.execute("""SELECT 1 FROM Users WHERE username = '%s' AND password = '%s'""" ,(username, password))
 if cur.fetchone():
     print("You've successfully logged in as %s" % username)
 else:

@@ -131,8 +131,8 @@ cur.execute("""SELECT 1 FROM Users
 Instead, use:
 \begin{python}
 cur.execute("""SELECT 1 FROM Users
-    WHERE username = '%s' 
-    AND password = '%s'""" ,
+    WHERE username = ? 
+    AND password = ?""",
     (username, password))
 \end{python}
 
