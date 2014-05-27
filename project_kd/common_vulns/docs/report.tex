@@ -72,14 +72,8 @@ emphstyle={\color{self}\slshape},
 \subsection{Savegames}
 \begin{enumerate}
 \item A buffer overflow can be executed by typing a name longer than 10 bytes.\\
-E.g.
-\lstset{language=bash}
-\begin{lstlisting}
-klaptop-2:common_vulns k$ ./a.out
-putsomereallyreallylongnamehere
-Name: putsomereallyreallylongnamehere
-HP: 30 | Gold: 1634038393
-\end{lstlisting}
+E.g.\\
+\includegraphics{overflow}
 
 \item For C code in general, the advice to avoid buffer overflows is:
 \begin{itemize}
@@ -100,7 +94,7 @@ scanf("%10s", h.name);
 So that the program knows how big the input string should be and ignores anything longer than what is expected.
 
 \item 
-Buffer overflows can be used to inject malicious instructions inside of a running program. This can be done in various ways, but a typical case is where an attacker corrupts the stack by overwriting the return address of the current stack frame. The program will then jump to a section of user-supplied instructions, also given as input when overflowing the buffer. With knowledge of the OS architecture that the program runs on an attacker can invoke system commands, spawn a shell or run malicious code from within the corrupted program. Once an attacker recognises the potential of a buffer overflow attack, they can use methods such as the NOP-sled technique to find stack offsets and return adresses. This technique finds the exact address of the buffer by incrementally adding no-operation op-codes onto the overflowed buffer and widening the target area. An executing program will 'slide' down these operations until it hits a relative jump instruction placed at the end which will move the execution to the section of malicious code.
+Buffer overflows can be used to inject malicious instructions inside of a running program. This can be done in various ways, but a typical case is where an attacker corrupts the stack by overwriting the return address of the current stack frame. The program will then jump to a section of user-supplied instructions, also given as input when overflowing the buffer. With knowledge of the OS architecture that the program runs on an attacker can invoke system commands, spawn a shell or run malicious code from within the corrupted program. Once an attacker recognises the potential of a buffer overflow attack, they can use methods such as the NOP-sled technique to find stack offsets and return addresses. This technique finds the exact address of the buffer by incrementally adding no-operation op-codes onto the overflowed buffer and widening the target area. An executing program will 'slide' down these operations until it hits a relative jump instruction placed at the end which will move the execution to the section of malicious code.
 \end{enumerate}
 
 \subsection{iCubeKinect}
@@ -116,7 +110,7 @@ Buffer overflows can be used to inject malicious instructions inside of a runnin
 \item The GCC complier implements the ``Stack Guard'' security mechanism to prevent buffer overflows. The stack protector in GCC is off by default, so implementing a buffer overflow will return ``stack smashing detected'' from gcc's stack protector. In our case we would like to disable this so that we can demonstrate a buffer overflow.\\
 Canaries are known values put on the stack between a buffer and control data to monitor buffer overflows. This means that the canary will be the first data to be corrupted when a buffer overflow is executed so a program just has to verify if the canary data is valid to check if an overflow has occurred. Once the overflow is detected it can be handled accordingly, by invalidating the corrupted data etc.
 \item Java automatically checks the bounds on arrays which prevents any buffer overflow from occurring. This doesn't mean that savegame could not be exploited, however, as Java has it's own problems. But it does rule out the possibility of a buffer overflow.
-\item TODO: Can you get a shell using buffer overflows? (http://phrack.org/issues/49/14.html) See 1.1 question 3, it is the same thing. Something to do with JMP to jump to where shellcode is stored
+\item As mentioned earlier, it is possible to execute pre-written scripts using a buffer overflow attack. This pre-written code could simply start a command shell which the attacker can control. This kind of script is called shellcode. This command shell is opened with the privileges of the program that called it, so the attacker has access to a shell with escalated privileges.
 \end{enumerate}
 
 
