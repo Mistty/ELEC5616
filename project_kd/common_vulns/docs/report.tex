@@ -69,9 +69,44 @@ emphstyle={\color{self}\slshape},
 \section{Low Level Exploits}
 
 \subsection{Savegames}
+\begin{enumerate}
+\item A buffer overflow can be executed by typing a name longer than 10 bytes.\\
+E.g.
+\lstset{language=bash}
+\begin{lstlisting}
+klaptop-2:common_vulns k$ ./a.out
+putsomereallyreallylongnamehere
+Name: putsomereallyreallylongnamehere
+HP: 30 | Gold: 1634038393
+\end{lstlisting}
 
+\item For C code in general, the advice to avoid buffer overflows is:
+\begin{itemize}
+\item Making sure that memory auditing is done properly with valgrind
+\item using fgets instead of gets
+\item use strncmp() instead of strcmp() or strncpy() instead of strcpy() etc
+\end{itemize}
+
+In the case of savegame.c, the line:
+\lstset{language=c}
+\begin{lstlisting}
+scanf("%s", h.name);
+\end{lstlisting}
+Should be replaced with
+\begin{lstlisting}
+scanf("%10s", h.name);
+\end{lstlisting}
+So that C knows how big the input string should be and ignores the rest of it.
+
+\item In this particular example they cannot because the code is not allowing or not allowing them into the system. If a buffer overflow is performed on a login program then this may allow them access to the system\\
+TODO: Is this right? Expand.
+
+\end{enumerate}
 
 \subsection{iCubeKinect}
+\begin{enumerate}
+
+\end{enumerate}
 
 
 \subsection{General Questions}
