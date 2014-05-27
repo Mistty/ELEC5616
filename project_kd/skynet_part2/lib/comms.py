@@ -55,7 +55,7 @@ class StealthConn(object):
             h.update(data)
             if self.verbose:
                 print("Hex digest is:",h.hexdigest())
-            mac_data = bytes(h.hexdigest() + data.decode("ascii"),"ascii")
+            mac_data = bytes(h.hexdigest(),"ascii") + data
             # Use the following code if you want to test what happens when the HMAC is bad
             #mac_data = h.hexdigest()[:-1] + "a"  + data.decode("ascii") # replace a random character in the digest
         else:
