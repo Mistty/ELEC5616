@@ -37,7 +37,8 @@ else:
 
 print()
 username = raw_input(">>> Find out the status for which user? ")
-cur.execute("SELECT status FROM Users WHERE username = '%s'" % username)
+cur.execute("SELECT status FROM Users WHERE username='%s' " % (username))
+#cur.execute("SELECT status FROM Users WHERE username=?", [username])
 data = cur.fetchone()
 if data:
     print("User %s is %s" % (username, data[0]))
